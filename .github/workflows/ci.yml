@@ -1,0 +1,17 @@
+name: CI
+on:
+  push: { branches: [main] }
+  pull_request:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    container: archlinux:latest
+    steps:
+      - name: Install dependencies
+        run: |
+          pacman -Syu --noconfirm --needed git make quickshell qt6-declarative qt6-svg \
+            inter-font ttf-jetbrains-mono dbus
+      - uses: actions/checkout@v4
+      - name: Unit tests, lint, load test
+        env: { QT_QPA_PLATFORM: offscreen }
+        run: dbus-run-session -- ./scripts/test.sh

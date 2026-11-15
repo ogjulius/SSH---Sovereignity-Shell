@@ -1,0 +1,33 @@
+name: Bug report
+description: Something in SSH does not work as documented
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for reporting! Please remove anything private (window titles appear in status output and logs).
+  - type: textarea
+    id: what
+    attributes: { label: What happened, description: What you did, what you expected, what you saw. }
+    validations: { required: true }
+  - type: textarea
+    id: repro
+    attributes: { label: Steps to reproduce }
+    validations: { required: true }
+  - type: dropdown
+    id: compositor
+    attributes: { label: Compositor, options: [Hyprland (classic config), Hyprland (Lua config), Niri, Other] }
+    validations: { required: true }
+  - type: input
+    id: versions
+    attributes: { label: Versions, description: "SSH version, `qs --version`, compositor version" }
+    validations: { required: true }
+  - type: dropdown
+    id: distro
+    attributes: { label: Distribution, options: [Arch Linux, CachyOS, EndeavourOS, Fedora, NixOS, Void (unofficial), Other] }
+    validations: { required: true }
+  - type: textarea
+    id: status
+    attributes: { label: "`ssh-shell status` output", render: json }
+  - type: textarea
+    id: logs
+    attributes: { label: Relevant log lines, render: text }

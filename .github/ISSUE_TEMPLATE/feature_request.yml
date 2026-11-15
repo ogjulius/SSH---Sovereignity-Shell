@@ -1,0 +1,15 @@
+name: Feature request
+description: Propose an improvement
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes: { label: The problem, description: What are you trying to do that SSH makes hard today? }
+    validations: { required: true }
+  - type: textarea
+    id: idea
+    attributes: { label: Proposed experience, description: How should it feel? How does it fit the map / Lens / Meridian model? }
+    validations: { required: true }
+  - type: textarea
+    id: cost
+    attributes: { label: Cost, description: Any memory/CPU, dependency or compositor implications you can foresee. }
