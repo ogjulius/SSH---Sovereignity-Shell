@@ -1,0 +1,63 @@
+# Builds the RPM with rpmbuild in a Fedora container, lints it, installs it
+# with dnf (Quickshell from the errornointernet/quickshell COPR referenced by
+# the Quickshell docs), runs unit tests against the installed tree,
+# uninstalls it and checks that nothing is left.
+name: Build · Fedora
+on:
+  push: { branches: [main], paths: ['src/**', 'bin/**', 'Makefile', 'packaging/fedora/**', 'assets/branding/**', '.github/workflows/build-fedora.yml'] }
+  pull_request:
+  workflow_dispatch:
+permissions: { contents: read }
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: fedora:latest
+    steps:
+      - name: Install build tooling
+        run: dnf -y install rpm-build rpmlint make git tar dnf-plugins-core python3
+      - uses: actions/checkout@v4
+      - name: Verify runtime dependency names exist in Fedora
+        run: |
+          for p in qt6-qtdeclarative qt6-qtsvg rsms-inter-fonts jetbrains-mono-fonts \
+                   pipewire NetworkManager bluez upower power-profiles-daemon brightnessctl; do
+            dnf -q info "$p" >/dev/null 2>&1 && echo "found    $p" || { echo "MISSING  $p"; missing=1; }
+          done
+          test -z "${missing:-}"
+      - name: Enable the Quickshell COPR
+        run: |
+          dnf -y copr enable errornointernet/quickshell
+          dnf -q info quickshell
+      - name: rpmbuild
+        run: |
+          git config --global --add safe.directory "$PWD"
+          mkdir -p ~/rpmbuild/SOURCES
+          git archive --prefix=SSH---Sovereignity-Shell-main/ -o ~/rpmbuild/SOURCES/ssh-shell-main.tar.gz HEAD
+          rpmbuild -ba packaging/fedora/ssh-shell.spec
+          find ~/rpmbuild -name '*.rpm' -exec ls -l {} \;
+      - name: rpmlint
+        run: rpmlint packaging/fedora/ssh-shell.spec ~/rpmbuild/RPMS/noarch/*.rpm || true
+      - name: Install with dnf and verify layout
+        run: |
+          dnf -y install ~/rpmbuild/RPMS/noarch/ssh-shell-*.rpm
+          rpm -ql ssh-shell | head -20
+          test -x /usr/bin/ssh-shell
+          test -f /usr/share/ssh-shell/shell.qml
+          test -f /usr/share/licenses/ssh-shell/LICENSE
+          qs --version
+      - name: Unit tests against the installed QML tree
+        env: { QT_QPA_PLATFORM: offscreen }
+        run: |
+          cp src/dev-tests.qml /usr/share/ssh-shell/dev-tests.qml
+          timeout 60 qs -p /usr/share/ssh-shell/dev-tests.qml 2>&1 | tee /tmp/t.log
+          grep -E "RESULT [0-9]+ passed, 0 failed" /tmp/t.log
+          rm /usr/share/ssh-shell/dev-tests.qml
+      - name: Uninstall and verify removal
+        run: |
+          dnf -y remove ssh-shell
+          test ! -e /usr/bin/ssh-shell
+          test ! -e /usr/share/ssh-shell
+      - uses: actions/upload-artifact@v4
+        with:
+          name: fedora-rpms
+          path: ~/rpmbuild/**/*.rpm

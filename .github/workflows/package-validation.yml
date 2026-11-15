@@ -1,0 +1,58 @@
+# Packaging metadata and dependency-name validation for every target,
+# each in its own distribution's environment.
+name: Package validation
+on:
+  push: { branches: [main] }
+  pull_request:
+  workflow_dispatch:
+permissions: { contents: read }
+
+jobs:
+  arch-metadata:
+    name: Arch / CachyOS / EndeavourOS — dependency names
+    runs-on: ubuntu-latest
+    container: archlinux:latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: pacman -Sy --noconfirm --needed bash
+      - name: Every depends/optdepends entry exists in the Arch repositories
+        shell: bash
+        run: |
+          source packaging/arch/PKGBUILD
+          for d in "${depends[@]}" "${optdepends[@]%%:*}"; do
+            n=${d%%[<>=]*}
+            pacman -Si "$n" >/dev/null 2>&1 && echo "found    $n" || { echo "MISSING  $n"; missing=1; }
+          done
+          test -z "${missing:-}"
+
+  void-metadata:
+    name: Void (unofficial) — dependency names and template
+    runs-on: ubuntu-latest
+    container: ghcr.io/void-linux/void-glibc-full:latest
+    steps:
+      - run: xbps-install -Syu xbps && xbps-install -Sy bash git
+      - uses: actions/checkout@v4
+      - name: Template parses
+        run: bash -n packaging/void/srcpkgs/ssh-shell/template
+      - name: Template dependencies (quickshell is expected to be absent)
+        shell: bash
+        run: |
+          source packaging/void/srcpkgs/ssh-shell/template
+          for p in $depends; do
+            if xbps-query -R "$p" >/dev/null 2>&1; then echo "found    $p"
+            elif [ "$p" = quickshell ]; then echo "absent   quickshell (expected: build from source)"
+            else echo "MISSING  $p"; missing=1; fi
+          done
+          test -z "${missing:-}"
+      - name: Optional runtime services named in the Void guide
+        run: |
+          for p in pipewire wireplumber NetworkManager bluez upower brightnessctl elogind dbus; do
+            xbps-query -R "$p" >/dev/null 2>&1 && echo "found    $p" || echo "MISSING  $p"
+          done
+
+  layout:
+    name: Install layout (make install / uninstall)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: ./scripts/check-layout.sh /usr && ./scripts/check-layout.sh /usr/local

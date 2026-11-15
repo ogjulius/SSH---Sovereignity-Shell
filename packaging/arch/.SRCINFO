@@ -1,0 +1,29 @@
+pkgbase = ssh-shell-git
+	pkgdesc = SSH — Sovereignity Shell: a spatial Quickshell desktop shell for Hyprland and Niri
+	pkgver = 0.1.0.alpha
+	pkgrel = 1
+	url = https://github.com/ogjulius/SSH---Sovereignity-Shell
+	arch = any
+	license = GPL-3.0-or-later
+	makedepends = git
+	makedepends = make
+	depends = quickshell>=0.3
+	depends = qt6-declarative
+	depends = qt6-svg
+	depends = inter-font
+	depends = ttf-jetbrains-mono
+	optdepends = hyprland: supported compositor
+	optdepends = niri: supported compositor
+	optdepends = pipewire: audio controls
+	optdepends = wireplumber: PipeWire session manager
+	optdepends = networkmanager: network status and Wi-Fi control
+	optdepends = bluez: Bluetooth control
+	optdepends = upower: battery information
+	optdepends = power-profiles-daemon: power profile switching
+	optdepends = brightnessctl: backlight control
+	provides = ssh-shell
+	conflicts = ssh-shell
+	source = ssh-shell::git+https://github.com/ogjulius/SSH---Sovereignity-Shell.git
+	sha256sums = SKIP
+
+pkgname = ssh-shell-git

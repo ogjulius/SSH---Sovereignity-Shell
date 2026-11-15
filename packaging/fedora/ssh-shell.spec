@@ -1,7 +1,9 @@
 # RPM spec for SSH — Sovereignity Shell.
-# Quickshell is not in Fedora's official repositories at the time of writing;
-# install it first (see docs/INSTALLATION.md), then build with:
-#   rpmbuild -ba packaging/fedora/ssh-shell.spec --define "_sourcedir $PWD/.."
+# Quickshell is not in Fedora's official repositories; the Quickshell docs
+# point to the errornointernet/quickshell COPR. See docs/installation/FEDORA.md.
+# Build from a checkout:
+#   git archive --prefix=SSH---Sovereignity-Shell-main/ -o ~/rpmbuild/SOURCES/ssh-shell-main.tar.gz HEAD
+#   rpmbuild -ba packaging/fedora/ssh-shell.spec
 Name:           ssh-shell
 Version:        0.1.0~alpha
 Release:        1%{?dist}
@@ -37,13 +39,14 @@ centre, dashboard and notification daemon. Supports Hyprland and Niri.
 
 %install
 make install DESTDIR=%{buildroot} PREFIX=%{_prefix}
+# %%license installs LICENSE itself; drop the copy from make install.
+rm -rf %{buildroot}%{_datadir}/licenses/ssh-shell
 
 %files
 %license LICENSE
 %{_bindir}/ssh-shell
 %{_datadir}/ssh-shell/
 %{_docdir}/ssh-shell/
-%{_datadir}/licenses/ssh-shell/
 %{_datadir}/icons/hicolor/scalable/apps/ssh-shell.svg
 %{_datadir}/icons/hicolor/256x256/apps/ssh-shell.png
 

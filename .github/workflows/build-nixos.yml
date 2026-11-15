@@ -1,0 +1,48 @@
+# Evaluates and builds the Nix flake on an Ubuntu runner with Nix installed
+# (this is Nix, not a NixOS machine), checks the built package layout,
+# evaluates the declarative NixOS example configuration, and runs the unit
+# tests with nixpkgs' Quickshell.
+name: Build · Nix / NixOS
+on:
+  push: { branches: [main], paths: ['src/**', 'bin/**', 'Makefile', 'flake.nix', 'flake.lock', 'packaging/nixos/**', '.github/workflows/build-nixos.yml'] }
+  pull_request:
+  workflow_dispatch:
+permissions: { contents: read }
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: cachix/install-nix-action@v31
+        with:
+          extra_nix_config: experimental-features = nix-command flakes
+      - name: Dependency attributes exist in nixpkgs
+        run: |
+          for a in quickshell inter jetbrains-mono brightnessctl; do
+            nix eval --raw "github:NixOS/nixpkgs/nixos-unstable#$a.name" && echo "  <- $a"
+          done
+      - name: nix flake check
+        run: nix flake check -L --show-trace
+      - name: nix build
+        run: |
+          nix build .#ssh-shell -L
+          ls -l result/bin
+          test -x result/bin/ssh-shell
+          test -f result/share/ssh-shell/shell.qml
+          test -z "$(find result/share/ssh-shell -name 'dev-*')"
+          grep -q SSH_SHELL_DIR result/bin/ssh-shell
+      - name: Evaluate the declarative NixOS example
+        run: nix eval --raw .#nixosConfigurations.example.config.system.build.toplevel.drvPath
+      - name: Unit tests with nixpkgs Quickshell
+        env: { QT_QPA_PLATFORM: offscreen }
+        run: |
+          nix shell github:NixOS/nixpkgs/nixos-unstable#quickshell -c sh -c \
+            'timeout 60 qs -p src/dev-tests.qml 2>&1' | tee /tmp/t.log
+          grep -E "RESULT [0-9]+ passed, 0 failed" /tmp/t.log
+      - name: Export closure as artifact
+        run: nix-store --export $(nix-store -qR result) > ssh-shell-nix-closure.nar
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nix-build
+          path: ssh-shell-nix-closure.nar

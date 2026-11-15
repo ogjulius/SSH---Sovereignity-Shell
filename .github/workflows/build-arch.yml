@@ -1,0 +1,66 @@
+# Builds the Arch package with makepkg in an Arch Linux container, lints it
+# with namcap, installs it with pacman, checks the installed layout, runs the
+# installed tree's unit tests, uninstalls it and checks that nothing is left.
+# CachyOS and EndeavourOS consume the same package (same repositories).
+name: Build · Arch Linux
+on:
+  push: { branches: [main], paths: ['src/**', 'bin/**', 'Makefile', 'packaging/arch/**', 'assets/branding/**', '.github/workflows/build-arch.yml'] }
+  pull_request:
+  workflow_dispatch:
+permissions: { contents: read }
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: archlinux:latest
+    steps:
+      - name: Install build tooling and runtime dependencies
+        run: |
+          pacman -Syu --noconfirm --needed base-devel git namcap sudo python \
+            quickshell qt6-declarative qt6-svg inter-font ttf-jetbrains-mono
+          useradd -m builder
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - name: makepkg (from this commit)
+        run: |
+          chown -R builder: .
+          mkdir -p /tmp/pkg && cp packaging/arch/PKGBUILD /tmp/pkg/
+          sed -i "s|git+\$url.git|git+file://$PWD|" /tmp/pkg/PKGBUILD
+          chown -R builder: /tmp/pkg
+          cd /tmp/pkg && sudo -u builder makepkg -f --noconfirm
+          ls -l /tmp/pkg/*.pkg.tar.zst
+      - name: namcap (package and PKGBUILD)
+        run: |
+          namcap packaging/arch/PKGBUILD || true
+          namcap /tmp/pkg/*.pkg.tar.zst | tee /tmp/namcap.txt
+          ! grep -E ' E: ' /tmp/namcap.txt
+      - name: .SRCINFO is up to date
+        run: |
+          cd packaging/arch && sudo -u builder makepkg --printsrcinfo > /tmp/SRCINFO
+          diff -u <(grep -v pkgver .SRCINFO) <(grep -v pkgver /tmp/SRCINFO)
+        shell: bash
+      - name: Install with pacman and verify layout
+        run: |
+          pacman -U --noconfirm /tmp/pkg/*.pkg.tar.zst
+          test -x /usr/bin/ssh-shell
+          test -f /usr/share/ssh-shell/shell.qml
+          test -f /usr/share/licenses/ssh-shell/LICENSE
+          test -z "$(find /usr/share/ssh-shell -name 'dev-*')"
+          pacman -Ql ssh-shell-git | wc -l
+          /usr/bin/ssh-shell help 2>&1 | head -5 || true
+      - name: Unit tests against the installed QML tree
+        env: { QT_QPA_PLATFORM: offscreen }
+        run: |
+          cp src/dev-tests.qml /usr/share/ssh-shell/dev-tests.qml
+          timeout 60 qs -p /usr/share/ssh-shell/dev-tests.qml 2>&1 | tee /tmp/t.log
+          grep -E "RESULT [0-9]+ passed, 0 failed" /tmp/t.log
+          rm /usr/share/ssh-shell/dev-tests.qml
+      - name: Uninstall and verify removal
+        run: |
+          pacman -R --noconfirm ssh-shell-git
+          test ! -e /usr/bin/ssh-shell
+          test ! -e /usr/share/ssh-shell
+      - uses: actions/upload-artifact@v4
+        with:
+          name: arch-package
+          path: /tmp/pkg/*.pkg.tar.zst

@@ -1,17 +1,60 @@
+# Source validation, unit tests, QML lint and live runtime tests on real
+# (nested, headless) Hyprland and Niri sessions. Runs in Arch Linux containers
+# because Arch ships Quickshell, Hyprland and Niri in its official repos.
 name: CI
 on:
   push: { branches: [main] }
   pull_request:
+  workflow_dispatch:
+permissions: { contents: read }
+
 jobs:
   test:
+    name: Unit tests · qmllint · load test (Arch Linux)
     runs-on: ubuntu-latest
     container: archlinux:latest
     steps:
       - name: Install dependencies
         run: |
-          pacman -Syu --noconfirm --needed git make quickshell qt6-declarative qt6-svg \
+          pacman -Syu --noconfirm --needed git make python quickshell qt6-declarative qt6-svg \
             inter-font ttf-jetbrains-mono dbus
       - uses: actions/checkout@v4
-      - name: Unit tests, lint, load test
+      - name: Source validation
+        run: |
+          for f in scripts/*.sh scripts/ci/*.sh bin/ssh-shell; do bash -n "$f" && echo "ok  $f"; done
+          for f in src/themes/presets/*.json; do python -m json.tool "$f" >/dev/null && echo "ok  $f"; done
+          python scripts/check-links.py
+      - name: Unit tests, Qt 6 qmllint, offscreen load test
         env: { QT_QPA_PLATFORM: offscreen }
         run: dbus-run-session -- ./scripts/test.sh
+      - name: Installation layout
+        run: ./scripts/check-layout.sh /usr
+
+  runtime:
+    name: Runtime on ${{ matrix.compositor }} (nested, headless)
+    runs-on: ubuntu-latest
+    container: archlinux:latest
+    strategy:
+      fail-fast: false
+      matrix:
+        compositor: [hyprland, niri]
+    steps:
+      - name: Install dependencies
+        run: |
+          pacman -Syu --noconfirm --needed git make python sudo quickshell qt6-declarative qt6-svg \
+            inter-font ttf-jetbrains-mono dbus sway grim foot libnotify mesa \
+            ${{ matrix.compositor }}
+          useradd -m tester
+      - uses: actions/checkout@v4
+      - name: Run SSH inside nested ${{ matrix.compositor }}
+        run: |
+          chown -R tester: .
+          sudo -u tester env -i HOME=/home/tester PATH=/usr/bin:/bin \
+            ./scripts/ci/runtime-test.sh ${{ matrix.compositor }} runtime-${{ matrix.compositor }}
+      - name: Upload screenshots and logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: runtime-${{ matrix.compositor }}
+          path: runtime-${{ matrix.compositor }}/
+          if-no-files-found: warn
