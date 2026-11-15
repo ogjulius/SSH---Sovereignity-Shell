@@ -1,0 +1,39 @@
+#!/usr/bin/env sh
+# ssh-shell — launcher and IPC front-end for SSH (Sovereignity Shell).
+#
+#   ssh-shell                 start the shell (refuses to start a second copy)
+#   ssh-shell --daemon        start detached
+#   ssh-shell <target> <fn> [args...]   call an IPC function, e.g.
+#       ssh-shell lens toggle
+#       ssh-shell atlas traverse left
+#       ssh-shell panel toggle instruments
+#   ssh-shell status          print machine-readable status (JSON)
+#   ssh-shell help            list IPC targets
+#
+# SSH_SHELL_DIR overrides where the QML lives (default: the installed copy,
+# or ../src next to this script when run from a checkout).
+set -eu
+
+here=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+if [ -n "${SSH_SHELL_DIR:-}" ]; then dir=$SSH_SHELL_DIR
+elif [ -f "$here/../src/shell.qml" ]; then dir=$here/../src
+elif [ -f "$here/../share/ssh-shell/shell.qml" ]; then dir=$here/../share/ssh-shell
+else dir=/usr/share/ssh-shell
+fi
+
+if ! command -v qs >/dev/null 2>&1; then
+    echo "ssh-shell: quickshell (qs) is not installed" >&2
+    exit 127
+fi
+
+case "${1:-}" in
+    ""|run) exec qs -n -p "$dir" ;;
+    --daemon|-d) exec qs -n -d -p "$dir" ;;
+    status) exec qs -p "$dir" ipc call shell status ;;
+    help|--help|-h)
+        sed -n '2,15p' "$0" | sed 's/^# \{0,1\}//'
+        echo
+        exec qs -p "$dir" ipc show ;;
+    kill|quit) exec qs -p "$dir" kill ;;
+    *) exec qs -p "$dir" ipc call "$@" ;;
+esac
