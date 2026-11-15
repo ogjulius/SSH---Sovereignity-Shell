@@ -36,9 +36,18 @@ pkgver() {
 
 check() {
     cd "$_pkgname"
-    # Unit tests run headless; skip silently where Quickshell cannot start.
-    QT_QPA_PLATFORM=offscreen timeout 30 qs -p src/dev-tests.qml 2>&1 | grep -q "RESULT .* 0 failed" \
-        || echo "warning: unit tests did not run in this build environment"
+    # Unit tests run headless in Quickshell's engine. Output goes to a file,
+    # never a pipe: a helper process inheriting a pipe could keep it open after
+    # `timeout` ends Quickshell, and makepkg would wait forever.
+    local log="$srcdir/unit-tests.log"
+    QT_QPA_PLATFORM=offscreen timeout -k 5 60 qs -p src/dev-tests.qml >"$log" 2>&1 </dev/null || true
+    if grep -q "RESULT [0-9]* passed, 0 failed" "$log"; then
+        grep -o "RESULT .*" "$log"
+    elif grep -q "RESULT" "$log"; then
+        grep -E "FAIL|RESULT" "$log"; return 1
+    else
+        echo "warning: unit tests could not run in this build environment (skipped)"
+    fi
 }
 
 package() {

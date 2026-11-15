@@ -71,7 +71,13 @@ if [ "${1:-}" = "--inside" ]; then
     check "traverse right switches the compositor's workspace" test "$before" != "$after"
     check "Atlas cursor reports B1"         test "$(ipc atlas where)" = "Main B1"
     ipc atlas traverse left; sleep 1.5
-    check "traverse left returns"           test "$(focused_ws)" = "$before"
+    back=$(focused_ws)
+    echo "traverse back: focused workspace $after -> $back" >>"$OUT/checks.log"
+    # On Niri the original unnamed workspace may have been removed by Niri when
+    # it became empty; SSH then re-claims A1 as a named workspace. So assert the
+    # map position and that focus left B1's workspace, not the old index.
+    check "traverse left returns to A1"     test "$(ipc atlas where)" = "Main A1"
+    check "traverse left leaves B1's workspace" test "$back" != "$after"
 
     foot --app-id ssh-probe --title ssh-probe sh -c 'sleep 90' >/dev/null 2>&1 &
     for _ in $(seq 75); do [ -n "$(probe_ws)" ] && break; sleep 0.2; done
