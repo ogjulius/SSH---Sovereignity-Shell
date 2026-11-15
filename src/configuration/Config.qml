@@ -81,7 +81,8 @@ Singleton {
             Quickshell.execDetached(["cp", "-f", "--", Paths.configFile, Paths.configFile + ".bak"]);
             _backedUp = true;
         }
-        Paths.ensure(Paths.configDir);
+        // Create the directory of the file actually written (honours SSH_SHELL_CONFIG).
+        Paths.ensure(Paths.configFile.substring(0, Paths.configFile.lastIndexOf("/")));
         _selfWrite = true;
         file.setText(JSON.stringify(user, null, 2) + "\n");
     }
