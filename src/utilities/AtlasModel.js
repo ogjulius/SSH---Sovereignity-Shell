@@ -99,16 +99,33 @@ function firstFreeInRow(c, y) {
     return { x: 0, y: y };
 }
 
-// Lowest positive integer workspace id not bound in the atlas and not
-// currently in use by the compositor (`liveIds` is an array of numbers).
-function freeNumericId(s, liveIds) {
+function usedIds(s, liveIds) {
     var used = {};
     var refs = allRefs(s);
     for (var r in refs) if (r.indexOf("id:") === 0) used[parseInt(r.slice(3), 10)] = true;
     for (var i = 0; i < liveIds.length; i++) used[liveIds[i]] = true;
-    var n = 1;
+    return used;
+}
+
+// Lowest positive integer workspace id >= `min` that is neither bound in
+// the atlas nor live in the compositor.
+function freeNumericId(s, liveIds, min) {
+    var used = usedIds(s, liveIds);
+    var n = min || 1;
     while (used[n]) n++;
     return n;
+}
+
+// Workspace id for a new cell. Row 1 of the first collection mirrors the
+// classic numbered workspaces (A1 = 1 … J1 = 10) so Super+N and the map
+// agree; every other cell takes ids from 11 upward.
+function idForCell(s, collectionId, x, y, liveIds) {
+    var first = s.collections.length > 0 && s.collections[0].id === collectionId;
+    if (first && y === 0 && x >= 0 && x < 10) {
+        var want = x + 1;
+        if (!usedIds(s, liveIds)[want]) return want;
+    }
+    return freeNumericId(s, liveIds, 11);
 }
 
 function bind(s, collectionId, x, y, ref) {
@@ -127,12 +144,35 @@ function bind(s, collectionId, x, y, ref) {
     c.cells[k].ref = ref;
 }
 
+// Where an unmapped workspace should appear when the user reaches it
+// natively. Numbered workspaces 1–10 go to their row-1 cell in the first
+// collection when free (A1 = 1 … J1 = 10); anything else lands at the
+// cursor if that cell is open, else the first open cell in the cursor's row.
+// -> { collection, x, y }
+function placementFor(s, ref) {
+    var m = /^id:(\d+)$/.exec(ref);
+    if (m) {
+        var n = parseInt(m[1], 10);
+        var first = s.collections[0];
+        if (n >= 1 && n <= 10) {
+            var c0 = first.cells[key(n - 1, 0)];
+            if (!c0 || !c0.ref) return { collection: first.id, x: n - 1, y: 0 };
+        }
+    }
+    var c = active(s);
+    var here = c.cells[key(c.cursor.x, c.cursor.y)];
+    if (!here || !here.ref) return { collection: c.id, x: c.cursor.x, y: c.cursor.y };
+    var pos = firstFreeInRow(c, c.cursor.y);
+    return { collection: c.id, x: pos.x, y: pos.y };
+}
+
 // Seeds an empty atlas from existing numeric workspaces: id N -> (N-1, 0).
 function seed(s, liveIds) {
     var c = active(s);
     var sorted = liveIds.slice().filter(function (n) { return n > 0; }).sort(function (a, b) { return a - b; });
     for (var i = 0; i < sorted.length; i++) {
         var id = sorted[i];
+        if (locate(s, "id:" + id)) continue; // already placed (e.g. by auto-place)
         var pos = id <= 30 && !c.cells[key(id - 1, 0)] ? { x: id - 1, y: 0 } : firstFreeInRow(c, 0);
         bind(s, c.id, pos.x, pos.y, "id:" + id);
     }

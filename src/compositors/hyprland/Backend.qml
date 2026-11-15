@@ -74,16 +74,36 @@ Item {
 
     function refreshGeometry() { Hyprland.refreshToplevels(); coalesce.restart(); }
 
-    function idOf(ref) { return ref.indexOf("id:") === 0 ? ref.slice(3) : ("name:" + ref.slice(5)); }
+    // ── Dispatch ───────────────────────────────────────────────────────
+    // Hyprland ≥ 0.55 can run a Lua config, in which case dispatch takes a
+    // Lua expression (hl.dsp.*) instead of the classic "name args" string.
+    // Both syntaxes were verified against Hyprland 0.57.2; see
+    // docs/COMPOSITOR_SUPPORT.md.
+    readonly property bool lua: Hyprland.usingLua
 
-    function focusRef(ref, create) { Hyprland.dispatch("workspace " + idOf(ref)); }
-    function moveWindowTo(windowId, ref, follow, create) {
-        const target = idOf(ref);
-        Hyprland.dispatch((follow ? "movetoworkspace " : "movetoworkspacesilent ") + target + ",address:" + windowId);
+    function luaStr(s) { return "\"" + String(s).replace(/\\/g, "\\\\").replace(/"/g, "\\\"") + "\""; }
+    // Workspace argument: integer id, or "name:<label>".
+    function wsClassic(ref) { return ref.indexOf("id:") === 0 ? ref.slice(3) : "name:" + ref.slice(5); }
+    function wsLua(ref) { return ref.indexOf("id:") === 0 ? String(parseInt(ref.slice(3))) : luaStr("name:" + ref.slice(5)); }
+    function addrOk(id) { return /^0x[0-9a-fA-F]+$/.test(id); }
+
+    function focusRef(ref, create) {
+        Hyprland.dispatch(lua ? "hl.dsp.focus({ workspace = " + wsLua(ref) + " })" : "workspace " + wsClassic(ref));
     }
-    function focusWindow(id) { Hyprland.dispatch("focuswindow address:" + id); }
-    function closeWindow(id) { Hyprland.dispatch("closewindow address:" + id); }
-    function quit() { Hyprland.dispatch("exit"); }
+    function moveWindowTo(windowId, ref, follow, create) {
+        if (!addrOk(windowId)) return;
+        if (lua) Hyprland.dispatch("hl.dsp.window.move({ workspace = " + wsLua(ref) + ", window = " + luaStr("address:" + windowId) + ", follow = " + (follow ? "true" : "false") + " })");
+        else Hyprland.dispatch((follow ? "movetoworkspace " : "movetoworkspacesilent ") + wsClassic(ref) + ",address:" + windowId);
+    }
+    function focusWindow(id) {
+        if (!addrOk(id)) return;
+        Hyprland.dispatch(lua ? "hl.dsp.focus({ window = " + luaStr("address:" + id) + " })" : "focuswindow address:" + id);
+    }
+    function closeWindow(id) {
+        if (!addrOk(id)) return;
+        Hyprland.dispatch(lua ? "hl.dsp.window.close({ window = " + luaStr("address:" + id) + " })" : "closewindow address:" + id);
+    }
+    function quit() { Hyprland.dispatch(lua ? "hl.dsp.exit()" : "exit"); }
 
     Component.onCompleted: { Hyprland.refreshToplevels(); rebuild(); }
 }

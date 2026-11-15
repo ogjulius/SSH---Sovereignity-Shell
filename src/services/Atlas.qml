@@ -61,7 +61,7 @@ Singleton {
     function touch() { revision++; saveTimer.restart(); }
 
     function newRef(x, y, coll) {
-        if (Compositor.caps.numericIds) return "id:" + M.freeNumericId(state, Compositor.liveNumericIds());
+        if (Compositor.caps.numericIds) return "id:" + M.idForCell(state, (coll || current).id, x, y, Compositor.liveNumericIds());
         return "name:ssh-" + (coll || current).id + "-" + x + "_" + y;
     }
 
@@ -158,8 +158,9 @@ Singleton {
     }
 
     // ── Compositor → Atlas ─────────────────────────────────────────────
+    property bool seeding: false
     function follow() {
-        if (!ready || !enabled) return;
+        if (!ready || !enabled || seeding) return;
         const ref = Compositor.focusedWorkspaceRef;
         if (!ref) return;
         const where = M.locate(state, ref);
@@ -174,11 +175,10 @@ Singleton {
             return;
         }
         if (!Config.atlas.autoPlace) return;
-        const c = current;
-        const here = c.cells[M.key(c.cursor.x, c.cursor.y)];
-        const pos = (here && here.ref) ? M.firstFreeInRow(c, c.cursor.y) : { x: c.cursor.x, y: c.cursor.y };
-        M.bind(state, c.id, pos.x, pos.y, ref);
-        c.cursor = pos;
+        const p = M.placementFor(state, ref);
+        M.bind(state, p.collection, p.x, p.y, ref);
+        state.active = p.collection;
+        M.collection(state, p.collection).cursor = { x: p.x, y: p.y };
         touch();
     }
 
@@ -190,7 +190,7 @@ Singleton {
 
     // ── Persistence ────────────────────────────────────────────────────
     Timer { id: saveTimer; interval: 800; onTriggered: { Paths.ensure(Paths.stateDir); file.setText(JSON.stringify(a.state) + "\n"); } }
-    Timer { id: seedTimer; interval: 400; onTriggered: { M.seed(a.state, Compositor.liveNumericIds()); a.touch(); a.follow(); } }
+    Timer { id: seedTimer; interval: 400; onTriggered: { M.seed(a.state, Compositor.liveNumericIds()); a.seeding = false; a.touch(); a.follow(); } }
 
     FileView {
         id: file
@@ -208,7 +208,7 @@ Singleton {
             a.state = M.empty();
             a.ready = true;
             // First run: give existing numeric workspaces a place on row 1.
-            if (Compositor.caps.numericIds) seedTimer.restart(); else followTimer.restart();
+            if (Compositor.caps.numericIds) { a.seeding = true; seedTimer.restart(); } else followTimer.restart();
         }
     }
 }
