@@ -1,104 +1,47 @@
-# Installation
+# Installing SSH
 
-> SSH is **pre-1.0 alpha** software. See `STATUS.md` for what is tested.
+Pick your distribution. Each guide is complete on its own: dependencies,
+installation, first launch, keybinds, integrations, updating, uninstalling,
+troubleshooting and verification.
 
-## Requirements
+| Distribution | Support | Guide | Tested |
+|---|---|---|---|
+| Arch Linux | Official | [ARCH.md](ARCH.md) | package installs; Hyprland and Niri verified |
+| CachyOS | Official | [CACHYOS.md](CACHYOS.md) | shared Arch package builds; CachyOS untested |
+| EndeavourOS | Official | [ENDEAVOUROS.md](ENDEAVOUROS.md) | shared Arch package builds; EndeavourOS untested |
+| Fedora Linux | Official | [FEDORA.md](FEDORA.md) | RPM builds, installs and uninstalls (container) |
+| NixOS | Official | [NIXOS.md](NIXOS.md) | flake builds; NixOS examples evaluate |
+| Void Linux | **Unofficial** | [VOID.md](VOID.md) | dependency names checked only |
+| Manjaro | Not supported | — | — |
+
+Exact statuses and evidence: **[COMPATIBILITY.md](COMPATIBILITY.md)**.
+
+## Requirements (all distributions)
 
 | | |
 |---|---|
-| Compositor | Hyprland (tested on 0.57.2) or Niri (implemented, not yet tested) |
-| Quickshell | ≥ 0.3 (tested on 0.3.2) with Qt ≥ 6.8 (tested on 6.12) |
-| Fonts | Inter, Inter Display, JetBrains Mono |
+| Compositor | Hyprland or Niri |
+| Quickshell | 0.3 or newer (Qt 6) |
+| Fonts | Inter (required for the intended look), JetBrains Mono (optional; SSH falls back) |
 | Optional services | PipeWire, NetworkManager, BlueZ, UPower, power-profiles-daemon, brightnessctl |
 
-Each optional service is detected at runtime; when it is missing, SSH shows the
-control as unavailable instead of failing.
+Every optional service is detected at runtime. When one is missing, SSH shows
+that control as unavailable instead of failing.
 
-## Arch Linux, CachyOS, EndeavourOS
-
-```sh
-git clone https://github.com/ogjulius/SSH---Sovereignity-Shell.git
-cd SSH---Sovereignity-Shell/packaging/arch
-makepkg -si
-```
-
-This builds `ssh-shell-git` from `packaging/arch/PKGBUILD`, pulling `quickshell`,
-`qt6-declarative`, `qt6-svg`, `inter-font` and `ttf-jetbrains-mono` from the
-official repositories. CachyOS and EndeavourOS use the same repositories and
-the same package. Manjaro is not supported (its repositories lag Arch, and
-Quickshell versions there may not match).
-
-## Fedora
-
-Quickshell is not in Fedora's official repositories at the time of writing.
-Install it from a Quickshell COPR or build it from source
-(<https://quickshell.org>), then:
-
-```sh
-sudo dnf install qt6-qtdeclarative qt6-qtsvg rsms-inter-fonts jetbrains-mono-fonts \
-    pipewire NetworkManager bluez upower power-profiles-daemon brightnessctl make
-git clone https://github.com/ogjulius/SSH---Sovereignity-Shell.git
-cd SSH---Sovereignity-Shell && sudo make install PREFIX=/usr
-```
-
-An RPM spec is provided in `packaging/fedora/ssh-shell.spec`.
-
-## NixOS
-
-```nix
-# flake.nix
-inputs.ssh-shell.url = "github:ogjulius/SSH---Sovereignity-Shell";
-
-# configuration.nix
-imports = [ inputs.ssh-shell.nixosModules.default ];
-programs.ssh-shell.enable = true;
-```
-
-The package installs into the Nix store and the `ssh-shell` wrapper points at
-the store copy; user state stays in `$XDG_CONFIG_HOME` / `$XDG_STATE_HOME`.
-For a quick try: `nix run github:ogjulius/SSH---Sovereignity-Shell`.
-
-## Void Linux (unofficial)
-
-See `packaging/void/README.md`.
-
-## From a checkout (any distribution)
+## From a checkout (any distribution, for development)
 
 ```sh
 git clone https://github.com/ogjulius/SSH---Sovereignity-Shell.git
 cd SSH---Sovereignity-Shell
-./bin/ssh-shell            # runs src/ directly
-sudo make install          # or install to /usr/local
+./bin/ssh-shell                         # runs src/ directly; needs Quickshell installed
+sudo make install PREFIX=/usr/local     # or install system-wide
+sudo make uninstall PREFIX=/usr/local
 ```
 
-## Start SSH with your session
+`make install` writes only under the prefix; `make uninstall` removes exactly
+what it installed (checked in CI by `scripts/check-layout.sh`).
 
-Stop any other bar or notification daemon first (SSH works alongside them, but
-only one program can own the notification bus name).
+## Why Manjaro is not supported
 
-**Hyprland (classic config)**
-```
-exec-once = ssh-shell
-```
-**Hyprland (Lua config)** — start `ssh-shell` from your startup section with
-`hl.dsp.exec_cmd("ssh-shell")` or your preferred autostart mechanism.
-
-**Niri**
-```kdl
-spawn-at-startup "ssh-shell"
-```
-
-Then open Settings → Keys, copy the generated block for your compositor into
-its config, and reload.
-
-## Upgrading
-
-- Your configuration (`~/.config/ssh-shell/`) and map (`~/.local/state/ssh-shell/`)
-  are never touched by package upgrades.
-- Restart SSH after upgrading: `ssh-shell kill && ssh-shell --daemon`.
-- Read `CHANGELOG.md` for option changes; removed options are reported, not fatal.
-
-## Uninstalling
-
-`sudo make uninstall` (or remove the package). To remove your data:
-`rm -rf ~/.config/ssh-shell ~/.local/state/ssh-shell`.
+Manjaro holds Arch packages back for testing, so its Quickshell and Qt versions
+can differ from the ones SSH is tested with. It may work; it is not supported.

@@ -39,4 +39,18 @@ First working pre-release. Not yet published.
 - `ssh-shell` CLI, IPC targets for every action, test runner (unit, lint,
   load), offscreen render harness, benchmark script.
 - Packaging for Arch (also CachyOS/EndeavourOS), Fedora (spec), NixOS (flake +
-  module); Void notes.
+  module with example configurations), Void (`xbps-src` template).
+- Six standalone installation tutorials and an evidence-based compatibility matrix.
+- GitHub Actions: CI (unit, lint, load, layout, links, nested-Niri runtime
+  suite), Arch/Fedora/Nix package builds with native install/uninstall, and
+  dependency-name validation; packages uploaded as artifacts.
+- Genuine screenshots and `scripts/capture-screenshots.sh`; `shell rect` and
+  `shell keybinds` IPC; Hyprland Lua keybind generation.
+
+### Fixed
+- Niri: Atlas cells bound to deleted unnamed workspaces are re-claimed.
+- Anchored panels opened by keybind/IPC sit at the right edge.
+- Settings rows align on wide windows; launcher chips fit one line.
+- Missing app icons fall back correctly on Quickshell 0.3.2.
+- Fonts resolve against installed families (Nerd Font builds of JetBrains Mono).
+- `PKGBUILD` `check()` can no longer hang `makepkg`.

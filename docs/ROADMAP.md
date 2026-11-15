@@ -15,10 +15,12 @@
 
 ## Next — 0.1.0 (first public release gate)
 
-- [ ] Niri: run, fix, document real behaviour; Atlas window geometry from `WindowLayoutsChanged`
-- [ ] Hands-on QA of every surface; genuine screenshots in the README
-- [ ] Distribution verification (CachyOS, EndeavourOS, Fedora, NixOS)
-- [ ] CI green on GitHub
+- [x] Niri runtime suite in CI; stale-binding fix
+- [x] Genuine screenshots in the README
+- [x] CI on GitHub with package builds for Arch, Fedora, Nix
+- [ ] Niri on real hardware; Atlas window geometry from `WindowLayoutsChanged`
+- [ ] Hands-on QA of every surface
+- [ ] Distribution verification (CachyOS, EndeavourOS, Fedora desktop, NixOS system)
 - [ ] Multi-monitor / HiDPI pass
 
 ## 0.2

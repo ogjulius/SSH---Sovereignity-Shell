@@ -12,7 +12,7 @@ Override with `SSH_SHELL_COMPOSITOR=hyprland|niri|none`.
 | Window previews | yes (one-shot screencopy of toplevels) | not yet |
 | Classic + Lua config | both (auto-detected via `Hyprland.usingLua`) | n/a |
 | Reconnection | handled by Quickshell's module; a compositor restart ends the session anyway | exponential back-off reconnect (0.5 s → 10 s) |
-| **Tested** | **yes, live on 0.57.2 (Lua config)** | **no — implemented against the documented IPC, not yet run** |
+| **Tested** | **live on real hardware, 0.57.2 (Lua config)** | **runtime suite in CI, 26.04, nested and software-rendered** (not yet on real hardware) |
 
 ## The Atlas is SSH's, not the compositor's
 
@@ -69,12 +69,23 @@ State is published at most once per frame.
 **Claiming a cell** names niri's trailing empty workspace on the focused output
 (`ssh-<collection>-<x>_<y>`) and focuses it, giving the cell a stable binding.
 
-**Known limitations / risks (untested):**
+**Verification (CI, Niri 26.04).** `scripts/ci/runtime-test.sh` runs SSH in a
+nested Niri session and checks, with `niri msg`: detection and IPC connection,
+all surfaces, Atlas travel to a new cell (Niri focuses the SSH-named workspace
+`ssh-c1-1_0`) and back, carrying a real window to another cell, the
+notification daemon, and that the generated keybind block passes
+`niri validate`. 22/22 checks pass.
+
+**Found by that run and fixed:** Niri deletes empty *unnamed* workspaces when
+they are left, so an Atlas cell bound to `id:<n>` can go stale. SSH now
+re-claims such a cell as a named workspace on the next visit.
+
+**Known limitations:**
 - Unnamed workspaces are referenced by index on the *focused* output; focusing
   an unnamed workspace on another output may target the wrong one.
 - Action flag names follow niri's documented CLI; if a niri release changes
   them, actions will log errors (the UI stays up).
 - No previews or window geometry in the Atlas yet.
 
-Niri support must be tested on a real session before it can be called official.
-See `STATUS.md`.
+Niri has not yet been tested on real hardware or with multiple outputs. See
+[installation/COMPATIBILITY.md](installation/COMPATIBILITY.md).

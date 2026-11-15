@@ -1,8 +1,9 @@
 # Screenshots
 
-Every image here is a **genuine capture of SSH running live** on Hyprland
-0.57.2 (Arch Linux, 1920×1080), taken with `scripts/capture-screenshots.sh`
-on 2026-11-15. None are mock-ups or offscreen renders.
+Every image here is a **genuine capture of SSH running live**. Hyprland
+images: real hardware, Hyprland 0.57.2 (Arch Linux, 1920×1080), taken with
+`scripts/capture-screenshots.sh` on 2026-11-15. Niri images: `grim` inside the
+CI runtime test (nested Niri 26.04). None are mock-ups or offscreen renders.
 
 How they were made (reproducible):
 
@@ -28,5 +29,5 @@ How they were made (reproducible):
 | `notifications/` | popups, Signals history | captured |
 | `settings/` | Settings window | captured |
 | `hyprland/` | power menu on Hyprland | captured |
-| `niri/` | anything on Niri | **not yet available** — Niri is untested |
+| `niri/` | Lens; a window after `atlas carry right` | captured in CI: nested Niri 26.04, software-rendered (`ci.yml` → *Runtime on niri*), on Niri's default grey backdrop |
 | `media/` | Almanac with an MPRIS player | **not yet available** — no player ran on the capture bus |
