@@ -48,9 +48,19 @@ Singleton {
     function surface(c) { return Qt.alpha(c, t.opacity); }
 
     // ── Typography ─────────────────────────────────────────────────────
-    readonly property string fontUi: Config.appearance.fontUi
-    readonly property string fontDisplay: Config.appearance.fontDisplay
-    readonly property string fontMono: Config.appearance.fontMono
+    // Families are resolved against what is actually installed, so a missing
+    // font degrades to a close relative instead of an arbitrary fallback
+    // (e.g. only the Nerd Font build of JetBrains Mono is installed).
+    readonly property var installedFonts: Qt.fontFamilies()
+    function pickFont(preferred, fallbacks) {
+        const all = installedFonts;
+        const want = [preferred].concat(fallbacks);
+        for (const f of want) if (all.indexOf(f) >= 0) return f;
+        return preferred;
+    }
+    readonly property string fontUi: pickFont(Config.appearance.fontUi, ["Inter", "Inter Variable", "Noto Sans", "Cantarell", "DejaVu Sans"])
+    readonly property string fontDisplay: pickFont(Config.appearance.fontDisplay, ["Inter Display", "Inter", "Noto Sans", "DejaVu Sans"])
+    readonly property string fontMono: pickFont(Config.appearance.fontMono, ["JetBrains Mono", "JetBrainsMono Nerd Font", "JetBrainsMono NF", "JetBrainsMono Nerd Font Mono", "Iosevka", "Noto Sans Mono", "DejaVu Sans Mono"])
     readonly property real fs: Config.appearance.fontScale
     // Scale: micro (mono caps labels) → display.
     readonly property int sizeMicro: Math.round(9.5 * fs)
