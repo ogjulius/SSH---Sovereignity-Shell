@@ -1,0 +1,1 @@
+{ "name": "Cobalt Ledger", "appearance": { "mode": "auto", "accent": "cobalt", "opacity": 0.95, "chamfer": 1, "autoLightFrom": 7, "autoDarkFrom": 19 } }
