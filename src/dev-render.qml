@@ -42,7 +42,7 @@ ShellRoot {
         almanac: { comp: almanacC, place: "anchor-clock", dim: 0 },
         signals: { comp: signalsC, place: "anchor-right", dim: 0 },
         power: { comp: powerC, place: "center", dim: 0.7 },
-        lens: { comp: lensC, place: "fill", dim: 0.62 },
+        lens: { comp: lensC, place: "fill", dim: Config.lens.dim },
         atlas: { comp: atlasC, place: "fill", dim: 0 }
     })
 

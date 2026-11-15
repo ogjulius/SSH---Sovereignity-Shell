@@ -35,6 +35,7 @@ var pages = [
         { path: "atlas.carryFollows", label: "Follow carried windows" },
         { path: "atlas.traverseToast", label: "Show position on travel" },
         { path: "atlas.previews", label: "Window previews", help: "Captured once when the Atlas opens, only around the selection." },
+        { path: "atlas.maxPreviews", label: "Preview budget", help: "Captures allowed around the selection: up to 6 for the selected cell, the rest shared by its neighbours." },
         { path: "atlas.cellWidth", label: "Cell size" },
         { special: "collections" }
     ]},

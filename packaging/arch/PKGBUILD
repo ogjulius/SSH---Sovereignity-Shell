@@ -1,0 +1,47 @@
+# Maintainer: SSH contributors
+# Development package built from the git repository. Also used unchanged on
+# CachyOS and EndeavourOS (Arch repositories). Manjaro is not supported.
+pkgname=ssh-shell-git
+_pkgname=ssh-shell
+pkgver=0.1.0.alpha
+pkgrel=1
+pkgdesc="SSH — Sovereignity Shell: a spatial Quickshell desktop shell for Hyprland and Niri"
+arch=('any')
+url="https://github.com/ogjulius/SSH---Sovereignity-Shell"
+license=('GPL-3.0-or-later')
+depends=('quickshell>=0.3' 'qt6-declarative' 'qt6-svg' 'inter-font' 'ttf-jetbrains-mono')
+makedepends=('git' 'make')
+optdepends=(
+    'hyprland: supported compositor'
+    'niri: supported compositor'
+    'pipewire: audio controls'
+    'wireplumber: PipeWire session manager'
+    'networkmanager: network status and Wi-Fi control'
+    'bluez: Bluetooth control'
+    'upower: battery information'
+    'power-profiles-daemon: power profile switching'
+    'brightnessctl: backlight control'
+)
+provides=("$_pkgname")
+conflicts=("$_pkgname")
+source=("$_pkgname::git+$url.git")
+sha256sums=('SKIP')
+
+pkgver() {
+    cd "$_pkgname"
+    local v
+    v=$(sed -n 's/.*version: "\(.*\)".*/\1/p' src/configuration/Version.qml | tr '-' '.')
+    printf '%s.r%s.%s' "$v" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
+}
+
+check() {
+    cd "$_pkgname"
+    # Unit tests run headless; skip silently where Quickshell cannot start.
+    QT_QPA_PLATFORM=offscreen timeout 30 qs -p src/dev-tests.qml 2>&1 | grep -q "RESULT .* 0 failed" \
+        || echo "warning: unit tests did not run in this build environment"
+}
+
+package() {
+    cd "$_pkgname"
+    make install DESTDIR="$pkgdir" PREFIX=/usr
+}

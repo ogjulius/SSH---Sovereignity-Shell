@@ -16,9 +16,16 @@ FocusScope {
 
     property string category: "all"
     property int current: 0
+    // Empty query in "All": recently launched apps first (launcher.recentCount),
+    // then everything else by frecency and name.
+    readonly property int recentShown: field.text.trim().length === 0 && category === "all" ? Math.min(Config.launcher.recentCount, Apps.recent(Config.launcher.recentCount).length) : 0
     readonly property var results: {
         Apps.index; Apps.usage;
-        return Apps.search(field.text, category, Config.launcher.maxResults);
+        const max = Config.launcher.maxResults;
+        if (recentShown === 0) return Apps.search(field.text, category, max);
+        const recent = Apps.recent(recentShown);
+        const ids = recent.map(e => e.id);
+        return recent.concat(Apps.search("", "all", max + recent.length).filter(e => ids.indexOf(e.id) < 0)).slice(0, max);
     }
     onResultsChanged: current = 0
 
@@ -98,7 +105,7 @@ FocusScope {
                     iconSource: Quickshell.iconPath(modelData.icon, "application-x-executable")
                     title: modelData.name
                     subtitle: modelData.genericName || modelData.comment || ""
-                    hint: index < 9 && index === l.current ? "↵" : ""
+                    hint: index === l.current ? "↵" : (index < l.recentShown ? "recent" : "")
                     onClicked: l.launch(modelData)
                     onHoveredChanged: if (hovered) l.current = index
                 }

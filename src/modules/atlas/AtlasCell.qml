@@ -17,6 +17,13 @@ Item {
     property int gy: 0
     property bool selected: false
     property bool previewAllowed: false
+    // Preview budget (atlas.maxPreviews) shared over the 3×3 neighbourhood:
+    // the selected cell takes up to 6, the eight neighbours split the rest.
+    readonly property int previewBudget: {
+        const max = Config.atlas.maxPreviews;
+        if (!previewAllowed || max <= 0) return 0;
+        return selected ? Math.min(6, max) : Math.floor(Math.max(0, max - 6) / 8);
+    }
     signal pick
     signal enter
 
@@ -94,7 +101,7 @@ Item {
                 }
                 Loader {
                     anchors { fill: parent; margins: 1 }
-                    active: cell.previewAllowed && Config.atlas.previews && Compositor.caps.previews && tile.modelData.handle !== null && tile.index < 6
+                    active: Config.atlas.previews && Compositor.caps.previews && tile.modelData.handle !== null && tile.index < cell.previewBudget
                     sourceComponent: ScreencopyView {
                         captureSource: tile.modelData.handle
                         live: false
