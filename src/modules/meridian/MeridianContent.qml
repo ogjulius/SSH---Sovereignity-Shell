@@ -52,6 +52,8 @@ Item {
             FocusTitle { anchors.centerIn: parent; width: Math.min(implicitWidth, parent.width); visible: Config.meridian.showTitle }
         }
 
+        KeysHint { Layout.fillHeight: true }
+
         // ── Instruments ───────────────────────────────────────────────
         Tray { visible: Config.meridian.showTray; Layout.fillHeight: true; barWindow: bar.barWindow }
         Readouts {

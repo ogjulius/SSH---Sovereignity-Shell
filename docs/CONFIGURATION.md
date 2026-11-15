@@ -83,14 +83,20 @@ in Instruments, or the Lens command "Settings"). Settings writes
 | `lock` | | `["loginctl","lock-session"]` | |
 | `suspend` / `reboot` / `poweroff` | | `["loginctl","suspend"]` … | work with systemd-logind and elogind |
 | `terminal` | | `["foot"]` | |
-| **shortcuts** (used to *generate* compositor binds) | | | |
-| `lens` `launcher` `atlas` `instruments` `power` | `"MODS, KEY"` | `SUPER, SPACE` … | |
+| **session** | | | |
+| `keybinds` | bool | `true` | bind the keys automatically in the Sovereignity Shell login sessions |
+| **keybinds** (action → key; see [KEYBINDS.md](KEYBINDS.md)) | | | |
+| `launcher` `terminal` `atlas` `lens` `instruments` `signals` `almanac` `settings` `power` `cheatsheet` | `"MODS, KEY"`, `""` = unbound | `SUPER, SPACE` · `SUPER, RETURN` · `SUPER, A` · `SUPER, O` · `SUPER, G` · `SUPER, N` · `SUPER, Y` · `SUPER SHIFT, COMMA` · `SUPER SHIFT, ESCAPE` · `SUPER, F1` | formerly `shortcuts` (still read, with a warning) |
 | `traverse` / `carry` | modifiers | `SUPER ALT` / `SUPER ALT SHIFT` | combined with arrows |
+| **firstRun** | | | |
+| `cheatsheetHint` | bool | `true` | the one-time KEYS hint in the Meridian; turned off when dismissed |
 
 ## Keybinds
 
-SSH does not grab keys. Settings → Keys generates a block for your compositor
-from the `shortcuts` options; paste it into your Hyprland or Niri config.
+The `keybinds` options drive everything: the runtime binds of the SSH login
+sessions, `ssh-shell keybinds hyprland|hyprland-lua|niri` (blocks to paste in
+plain sessions), `ssh-shell keybinds list`, Settings → Keys and the cheatsheet.
+SSH never edits compositor files. Details: [KEYBINDS.md](KEYBINDS.md).
 
 ## Import / export
 

@@ -188,6 +188,11 @@ It never changes your login shell, your shell or compositor configuration,
 your display manager or bootloader, and the plain Hyprland/Niri sessions stay
 available as a fallback. Details: [docs/installation/README.md](docs/installation/README.md).
 
+**Keys:** one system, Super plus a letter that names the place (Super+**A**tlas,
+Super+**O** Lens, Super+**G** Instruments, Super+**N** Signals, Super+**Y**
+Almanac, Super+Space launcher), Super+Alt+arrows to travel. **Super+F1** shows
+them all. See [docs/KEYBINDS.md](docs/KEYBINDS.md).
+
 ### Supported compositors
 
 | Compositor | Backend | Verified |

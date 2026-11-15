@@ -10,6 +10,21 @@ fatal).
 First working pre-release. Not yet published.
 
 ### Added
+- **Keybind scheme** ([docs/KEYBINDS.md](docs/KEYBINDS.md)): Super as the only
+  base modifier, letters that name the destination (Super+A Atlas, O Lens,
+  G Instruments, N Signals, Y Almanac), Super+Space launcher, Super+Return
+  terminal, Super+Shift+, Settings, Super+F1 cheatsheet; no collisions with
+  stock Hyprland or Niri binds (unit-tested). The schema's `keybinds` map
+  (action → key) replaces `shortcuts`, which is still read with a warning.
+  **Default keys changed:** Lens Super+Space → Super+O, Atlas Super+Tab →
+  Super+A, Instruments Super+A → Super+G, launcher Super+D → Super+Space.
+- **Cheatsheet** surface (`ssh-shell keybinds cheatsheet`, Super+F1), created
+  on open and destroyed on close; `ssh-shell keybinds list`; `ssh-shell
+  terminal`. `ssh-shell keybinds <target>` now works without a running shell.
+- **Settings → Keys** lists every action with its key (editable), command and
+  description.
+- One-time **KEYS · SUPER+F1** hint in the Meridian (`firstRun.cheatsheetHint`),
+  gone after it is dismissed or the cheatsheet is opened.
 - **`./install.sh`:** clone-and-install for Arch, CachyOS, EndeavourOS,
   Fedora, NixOS (declarative module) and Void (unofficial). Interactive
   (arrow keys, numbered fallback) or unattended (`--yes`), with profiles,

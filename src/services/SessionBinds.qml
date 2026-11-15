@@ -30,7 +30,7 @@ Singleton {
     property var skipped: []      // specs left out because the user binds the key
     property string lastError: ""
 
-    readonly property string signature: active ? JSON.stringify(Config.shortcuts) : ""
+    readonly property string signature: active ? JSON.stringify(Config.keybinds) : ""
     onSignatureChanged: refresh.restart()
     Timer { id: refresh; interval: 300; onTriggered: sb.apply() }
     Connections { target: Compositor; function onConnectedChanged() { if (Compositor.connected) refresh.restart(); } }
@@ -38,7 +38,7 @@ Singleton {
     function apply() {
         if (!active || !Compositor.connected) return;
         if (session === "niri") {
-            niriOut.setText("// Written by SSH from its \"shortcuts\" options; regenerated at every start.\n" + KB.generate("niri", Config.shortcuts) + "\n");
+            niriOut.setText("// Written by SSH from its \"keybinds\" options; regenerated at every start.\n" + KB.generate("niri", Config.keybinds) + "\n");
             console.info("[ssh] session keybinds written to " + niriFile);
             return;
         }
@@ -55,7 +55,7 @@ Singleton {
     }
 
     function bindFree(taken) {
-        const p = KB.partition(KB.specs(Config.shortcuts), taken);
+        const p = KB.partition(KB.specs(Config.keybinds), taken);
         skipped = p.skipped;
         if (p.skipped.length > 0)
             console.info("[ssh] session keybinds: kept your own binding for " + p.skipped.map(b => (b.mods ? b.mods + " " : "") + b.key).join(", "));

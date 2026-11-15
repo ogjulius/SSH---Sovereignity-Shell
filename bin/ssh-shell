@@ -9,6 +9,9 @@
 #       ssh-shell panel toggle instruments
 #   ssh-shell status          print machine-readable status (JSON)
 #   ssh-shell keybinds hyprland|hyprland-lua|niri   print a keybind block
+#   ssh-shell keybinds list   print every keybind with its command
+#   ssh-shell keybinds cheatsheet   show the keybind overlay
+#   ssh-shell terminal        open your terminal (commands.terminal)
 #   ssh-shell doctor          check the installation and login sessions
 #   ssh-shell check-config [FILE]   validate a configuration file
 #   ssh-shell quit            stop the running shell
@@ -142,9 +145,18 @@ case "${1:-}" in
     session-run) session_run ;;
     check-config) shift; check_config "$@" && echo "configuration valid" ;;
     status) exec qs -p "$dir" ipc call shell status ;;
-    keybinds) exec qs -p "$dir" ipc call shell keybinds "${2:-hyprland}" ;;
+    keybinds)
+        case ${2:-hyprland} in
+            cheatsheet) exec qs -p "$dir" ipc call keybinds cheatsheet ;;
+            hyprland|hyprland-lua|niri|list)
+                # Headless: works without a running shell, reads the config file.
+                SSH_KEYBINDS_TARGET=${2:-hyprland} QT_QPA_PLATFORM=offscreen timeout -k 3 20 qs -p "$dir/keybinds-print.qml" </dev/null 2>&1 \
+                    | sed 's/\x1b\[[0-9;]*m//g' | sed -n 's/.*SSH-OUT //p' ;;
+            *) echo "ssh-shell keybinds: hyprland | hyprland-lua | niri | list | cheatsheet" >&2; exit 2 ;;
+        esac ;;
+    terminal) exec qs -p "$dir" ipc call terminal open ;;
     help|--help|-h)
-        sed -n '2,19p' "$0" | sed 's/^# \{0,1\}//'
+        sed -n '2,22p' "$0" | sed 's/^# \{0,1\}//'
         echo
         exec qs -p "$dir" ipc show ;;
     kill|quit) exec qs -p "$dir" kill ;;
