@@ -15,18 +15,24 @@
 
       nixosModules.default = import ./packaging/nixos/module.nix self;
 
-      # A minimal declarative example (also evaluated in CI).
-      nixosConfigurations.example = nixpkgs.lib.nixosSystem {
-        system = "x86_64-linux";
-        modules = [
-          self.nixosModules.default
-          ({ ... }: {
-            programs.ssh-shell.enable = true;
-            boot.loader.grub.enable = false;
-            fileSystems."/" = { device = "none"; fsType = "tmpfs"; };
-            system.stateVersion = "25.05";
-          })
-        ];
+      # Minimal declarative examples (evaluated in CI; see docs/installation/NIXOS.md).
+      nixosConfigurations = let
+        example = compositor: nixpkgs.lib.nixosSystem {
+          system = "x86_64-linux";
+          modules = [
+            self.nixosModules.default
+            ({ ... }: {
+              programs.ssh-shell.enable = true;
+              programs.${compositor}.enable = true;
+              boot.loader.grub.enable = false;
+              fileSystems."/" = { device = "none"; fsType = "tmpfs"; };
+              system.stateVersion = "25.05";
+            })
+          ];
+        };
+      in {
+        example-hyprland = example "hyprland";
+        example-niri = example "niri";
       };
 
       checks = forAll (pkgs: {

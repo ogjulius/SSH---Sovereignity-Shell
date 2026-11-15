@@ -50,7 +50,7 @@ jobs:
           test -z "${missing:-}"
       - name: Optional runtime services named in the Void guide
         run: |
-          for p in pipewire wireplumber NetworkManager bluez upower brightnessctl elogind dbus; do
+          for p in hyprland niri pipewire wireplumber NetworkManager bluez upower power-profiles-daemon brightnessctl elogind dbus libnotify; do
             xbps-query -R "$p" >/dev/null 2>&1 && echo "found    $p" || echo "MISSING  $p"
           done
 

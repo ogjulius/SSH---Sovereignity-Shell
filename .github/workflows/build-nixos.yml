@@ -32,8 +32,10 @@ jobs:
           test -f result/share/ssh-shell/shell.qml
           test -z "$(find result/share/ssh-shell -name 'dev-*')"
           grep -q SSH_SHELL_DIR result/bin/ssh-shell
-      - name: Evaluate the declarative NixOS example
-        run: nix eval --raw .#nixosConfigurations.example.config.system.build.toplevel.drvPath
+      - name: Evaluate the declarative NixOS examples (Hyprland and Niri)
+        run: |
+          nix eval --raw .#nixosConfigurations.example-hyprland.config.system.build.toplevel.drvPath; echo
+          nix eval --raw .#nixosConfigurations.example-niri.config.system.build.toplevel.drvPath; echo
       - name: Unit tests with nixpkgs Quickshell
         env: { QT_QPA_PLATFORM: offscreen }
         run: |

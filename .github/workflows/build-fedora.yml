@@ -24,6 +24,11 @@ jobs:
             dnf -q info "$p" >/dev/null 2>&1 && echo "found    $p" || { echo "MISSING  $p"; missing=1; }
           done
           test -z "${missing:-}"
+      - name: Compositor availability in Fedora repositories (informational)
+        run: |
+          for p in hyprland niri foot grim; do
+            dnf -q info "$p" 2>/dev/null | grep -E '^(Name|Version|Repository)' | tr '\n' ' '; echo " <- $p"
+          done
       - name: Enable the Quickshell COPR
         run: |
           dnf -y copr enable errornointernet/quickshell
