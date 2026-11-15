@@ -11,7 +11,7 @@ strip() { sed 's/\x1b\[[0-9;]*m//g'; }
 
 echo "── unit tests"
 out=$(QT_QPA_PLATFORM=offscreen timeout 30 qs -p src/dev-tests.qml 2>&1 | strip)
-echo "$out" | grep -E "FAIL|RESULT|got:|want:" | sed 's/^ *DEBUG qml: /  /'
+echo "$out" | grep -E "FAIL|RESULT|got:|want:" | sed -E "s/^ *(DEBUG|INFO|WARN) *qml: /  /"
 if ! echo "$out" | grep -qE "RESULT [0-9]+ passed, 0 failed"; then fail=1; fi
 
 echo "── qmllint (Qt 6)"

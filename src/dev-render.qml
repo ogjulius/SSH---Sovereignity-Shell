@@ -91,7 +91,7 @@ ShellRoot {
         interval: 1600
         onTriggered: (settingsLoader.active && settingsLoader.item ? settingsLoader.item.body : frame).grabToImage(r => {
             const path = root.out + "/" + root.current.replace(":", "-") + "-" + root.mode + ".png";
-            console.log("[render] " + path + " " + r.saveToFile(path));
+            console.info("[render] " + path + " " + r.saveToFile(path));
             step.start();
         })
     }

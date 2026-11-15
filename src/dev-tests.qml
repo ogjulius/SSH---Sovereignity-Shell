@@ -196,8 +196,8 @@ ShellRoot {
         for (const t of suites) {
             try { t(); } catch (e) { failures.push(t.name + " threw: " + e); }
         }
-        for (const f of failures) console.log("FAIL " + f);
-        console.log("RESULT " + passed + " passed, " + failures.length + " failed");
+        for (const f of failures) console.warn("FAIL " + f);
+        console.info("RESULT " + passed + " passed, " + failures.length + " failed");
         quitTimer.start(); // Quickshell does not route Qt.exit(); scripts/test.sh reads RESULT
     }
 }
