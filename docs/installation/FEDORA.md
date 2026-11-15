@@ -63,6 +63,12 @@ Optional: `pipewire`, `NetworkManager`, `bluez`, `upower`, `power-profiles-daemo
 
 ## 5. Installation
 
+> [!TIP]
+> **Recommended:** run `./install.sh` from a clone of the repository. It does
+> everything below for you, adds the **Sovereignity Shell** login sessions and
+> validates them; see [the installer](README.md#the-installer-recommended).
+> The manual steps below remain for reference.
+
 1. **Enable the Quickshell COPR** and install Quickshell:
    ```sh
    sudo dnf install dnf-plugins-core

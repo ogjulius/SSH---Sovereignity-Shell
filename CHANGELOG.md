@@ -10,6 +10,24 @@ fatal).
 First working pre-release. Not yet published.
 
 ### Added
+- **`./install.sh`:** clone-and-install for Arch, CachyOS, EndeavourOS,
+  Fedora, NixOS (declarative module) and Void (unofficial). Interactive
+  (arrow keys, numbered fallback) or unattended (`--yes`), with profiles,
+  module/integration selection, themes, terminal choice, a full dependency and
+  change list before anything happens, logs, validation, an
+  INSTALLATION COMPLETE screen with REBOOT NOW / REBOOT LATER, and
+  `--uninstall`.
+- **Login sessions** "Sovereignity Shell (Hyprland)" and "Sovereignity Shell
+  (Niri)" via `ssh-session`: the compositor runs with the user's own config,
+  SSH starts exactly once and is restarted after a crash; plain compositor
+  sessions are untouched.
+- **Session keybinds** (`session.keybinds`): inside SSH sessions the shortcuts
+  are bound automatically (Hyprland at runtime, Niri through an included
+  file); combinations the user already binds are left alone.
+- `ssh-shell doctor`, `ssh-shell check-config`, `ssh-shell version`; bash,
+  fish and zsh completions.
+- CI runs `install.sh` end to end in Arch, Fedora and Void containers,
+  including a live test of the installed Niri session.
 - **Atlas (Infinite Desktop):** unbounded 2D map of workspace cells in named
   collections, persisted by SSH and mapped onto real workspaces; traverse,
   carry, rename, drag-and-drop window moves, recycled-delegate canvas, one-shot
@@ -48,6 +66,7 @@ First working pre-release. Not yet published.
   `shell keybinds` IPC; Hyprland Lua keybind generation.
 
 ### Fixed
+- Void template comment claimed Quickshell was not packaged for Void (it is).
 - Niri: Atlas cells bound to deleted unnamed workspaces are re-claimed.
 - Anchored panels opened by keybind/IPC sit at the right edge.
 - Settings rows align on wide windows; launcher chips fit one line.

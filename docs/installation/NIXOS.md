@@ -60,6 +60,12 @@ These attributes are checked against `nixos-unstable` in CI.
 
 ## 5. Installation
 
+> [!TIP]
+> `./install.sh` on NixOS writes a module with your choices to
+> `~/.config/ssh-shell/nixos/ssh-shell.nix` and shows where it goes in your
+> flake; it never edits `/etc/nixos`. The module below is what it generates.
+> `programs.ssh-shell.hyprland.enable` / `.niri.enable` add the login sessions.
+
 ### A. Declarative (recommended)
 
 1. **Add SSH to your system flake:**

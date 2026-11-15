@@ -165,20 +165,28 @@ Genuine captures of SSH running on Hyprland
 What "official" means and what has actually been verified on each:
 [compatibility matrix](docs/installation/COMPATIBILITY.md).
 
-**Quick start on Arch / CachyOS / EndeavourOS**
+**Install**
 
 ```sh
 git clone https://github.com/ogjulius/SSH---Sovereignity-Shell.git
-cd SSH---Sovereignity-Shell/packaging/arch && makepkg -si
-ssh-shell keybinds hyprland      # or: hyprland-lua · niri — paste into your compositor config
+cd SSH---Sovereignity-Shell
+./install.sh
 ```
 
-**NixOS**
+The installer detects your distribution and uses its own package manager: it
+asks which compositor (Hyprland, Niri or both), terminal, profile
+(Minimal / Standard / Complete / Custom) and theme you want, lists every
+dependency and change, and installs only after you confirm. It builds a native
+package from the checkout (pacman, RPM or XBPS; on NixOS it writes a
+declarative module for your flake), adds the **Sovereignity Shell (Hyprland)**
+and/or **Sovereignity Shell (Niri)** login sessions, validates them, and offers
+to reboot. Pick the session at the login screen and SSH is already running,
+with its keybinds active. `./install.sh --help` lists the unattended options;
+`./install.sh --uninstall` removes SSH.
 
-```nix
-inputs.ssh-shell.url = "github:ogjulius/SSH---Sovereignity-Shell";
-# modules = [ ssh-shell.nixosModules.default { programs.ssh-shell.enable = true; } ];
-```
+It never changes your login shell, your shell or compositor configuration,
+your display manager or bootloader, and the plain Hyprland/Niri sessions stay
+available as a fallback. Details: [docs/installation/README.md](docs/installation/README.md).
 
 ### Supported compositors
 

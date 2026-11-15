@@ -56,6 +56,12 @@ Optional (each feature degrades gracefully without it): `pipewire` + `wireplumbe
 
 ## 5. Installation
 
+> [!TIP]
+> **Recommended:** run `./install.sh` from a clone of the repository. It does
+> everything below for you, adds the **Sovereignity Shell** login sessions and
+> validates them; see [the installer](README.md#the-installer-recommended).
+> The manual steps below remain for reference.
+
 1. **Install the build tools** (needed once):
    ```sh
    sudo pacman -S --needed git base-devel

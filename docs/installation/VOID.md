@@ -69,6 +69,11 @@ Optional: `pipewire`, `wireplumber`, `NetworkManager`, `bluez`, `upower`,
 
 ## 5. Installation
 
+> [!TIP]
+> `./install.sh` on Void installs dependencies with xbps and builds a local
+> XBPS package of SSH with `xbps-create` (removable with `xbps-remove ssh-shell`),
+> including the **Sovereignity Shell (Niri)** login session. Void is unofficial.
+
 1. **Install Quickshell and SSH's dependencies:**
    ```sh
    sudo xbps-install -S quickshell qt6-declarative qt6-svg qt6-wayland font-inter make git

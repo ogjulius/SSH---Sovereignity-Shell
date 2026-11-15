@@ -1,6 +1,6 @@
 # Status
 
-_Last updated: 2026-11-15 (afternoon) — version 0.1.0-alpha "Survey" (unreleased)._
+_Last updated: 2026-11-15 (evening) — version 0.1.0-alpha "Survey" (unreleased)._
 
 ## Summary
 
@@ -11,6 +11,20 @@ It is **not ready for a stable release**: no target is fully verified on real
 hardware for both compositors, and CachyOS, EndeavourOS, NixOS (as a system)
 and Void have not been installed on. Per-target evidence:
 [installation/COMPATIBILITY.md](installation/COMPATIBILITY.md).
+
+## Installer and login sessions (new)
+
+| Area | Status | Evidence / notes |
+|---|---|---|
+| `ssh-session` (Hyprland) | ✅ | nested Hyprland 0.57.2 (Lua config, private D-Bus, throwaway config): SSH auto-started, user's bind kept, 18–19 binds added, duplicate start refused, restarted after `kill -9`, clean teardown on compositor exit |
+| `ssh-session` (Niri) | ⬜ | implemented; covered by `scripts/ci/session-test.sh` in the Installer workflow — results not yet reviewed. Niri is not installed on the dev machine |
+| Session keybinds | 🟡 | Hyprland Lua verified (above); classic-config path untested (Hyprland 0.57 only reads Lua); Niri path in CI |
+| `./install.sh` interactive UI | 🟡 | dry runs on Arch: plain prompts (piped answers) and arrow-key UI (pty with simulated keys) |
+| Arch backend | 🟡 | package builds with `makepkg` from `PKGBUILD.local` and contains sessions, launcher, completions; a real install on hardware needs the user's sudo password and was not run |
+| Fedora / Void backends | ⬜ | end-to-end container jobs in `installer.yml`; results not yet reviewed |
+| NixOS backend | ❌ | first CI run of the module-evaluation job **failed**; not yet diagnosed |
+| `--uninstall` | ⬜ | in the container end-to-end jobs; not yet reviewed |
+| `ssh-shell doctor` / `check-config` | ✅ | check-config verified on valid, invalid, unparseable and missing files |
 
 ## Feature status
 
@@ -28,7 +42,7 @@ Legend: ✅ working and verified · 🟡 implemented, partially verified · ⬜ 
 | Almanac | 🟡 | renders verified (calendar, load, temperature); weather fetch path not exercised (no location configured) |
 | Signals (notifications) | ✅ | verified on a private D-Bus session: owns the bus name, capabilities, history, quiet mode (critical bypass), clear-all closes senders' notifications |
 | Notification popups visuals | ✅ | captured live on Hyprland (`assets/screenshots/notifications/`) |
-| OSD | ⬜ | wired to PipeWire/brightness events; not seen live |
+| OSD | ✅ | shown live on Hyprland (`ssh-osd` layer mapped on a volume step; volume restored) |
 | Power menu | 🟡 | renders verified; actions not executed (by design) |
 | Settings | 🟡 | captured live; layout fixed from screenshot review; controls not exercised by hand |
 | Theme import/export | ⬜ | implemented |
@@ -45,7 +59,7 @@ Legend: ✅ working and verified · 🟡 implemented, partially verified · ⬜ 
 
 | Check | Result |
 |---|---|
-| Unit tests | 239 assertions pass (local and every CI job) |
+| Unit tests | 254 assertions pass locally |
 | qmllint (Qt 6) | no syntax errors |
 | Offscreen load of all surfaces | clean, with and without system services |
 | Install layout (`make install`/`uninstall`) | verified, CI |
@@ -67,6 +81,10 @@ Legend: ✅ working and verified · 🟡 implemented, partially verified · ⬜ 
 5. Command arguments with spaces can't be edited in Settings (edit the JSON).
 
 ## Remaining work before a first public release
+
+- [ ] Review the Installer workflow results (Arch/Fedora/Void end to end) and fix failures.
+- [ ] Diagnose the NixOS installer-module CI failure.
+- [ ] Run `./install.sh` on real hardware (needs a user with sudo) and log into each session.
 
 - [x] Run and fix the Niri backend on a real Niri session (CI, nested).
 - [x] Genuine screenshots (Hyprland, live; Niri, CI).
