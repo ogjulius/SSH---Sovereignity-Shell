@@ -11,11 +11,11 @@ import "Keybinds.js" as KB
 // generates the binding block for Hyprland or Niri from your choices.
 ColumnLayout {
     spacing: Theme.s4
-    property string target: Compositor.kind === "niri" ? "niri" : "hyprland"
-    readonly property string snippet: target === "niri" ? KB.niri(Config.shortcuts) : KB.hyprland(Config.shortcuts)
+    property string target: Compositor.kind === "niri" ? "niri" : (Compositor.backend && Compositor.backend.lua ? "hyprland-lua" : "hyprland")
+    readonly property string snippet: KB.generate(target, Config.shortcuts)
 
     Label { Layout.fillWidth: true; role: "caption"; faint: true; wrapMode: Text.WordWrap
-        text: "SSH is driven over IPC (ssh-shell <target> <action>). Edit the keys below, then paste the generated block into your compositor config. SSH never edits compositor files for you." }
+        text: "SSH is driven over IPC (ssh-shell <target> <action>). Edit the keys below, then paste the generated block into your compositor config (also available as `ssh-shell keybinds <target>`). SSH never edits compositor files for you." }
     Repeater {
         model: ["lens", "launcher", "atlas", "instruments", "power", "traverse", "carry"]
         OptionRow {
@@ -27,7 +27,7 @@ ColumnLayout {
     RowLayout {
         spacing: Theme.s2
         Repeater {
-            model: ["hyprland", "niri"]
+            model: ["hyprland", "hyprland-lua", "niri"]
             Pressable {
                 required property var modelData
                 width: tl.implicitWidth + Theme.s5; height: 26

@@ -8,6 +8,7 @@
 #       ssh-shell atlas traverse left
 #       ssh-shell panel toggle instruments
 #   ssh-shell status          print machine-readable status (JSON)
+#   ssh-shell keybinds hyprland|hyprland-lua|niri   print a keybind block
 #   ssh-shell help            list IPC targets
 #
 # SSH_SHELL_DIR overrides where the QML lives (default: the installed copy,
@@ -30,8 +31,9 @@ case "${1:-}" in
     ""|run) exec qs -n -p "$dir" ;;
     --daemon|-d) exec qs -n -d -p "$dir" ;;
     status) exec qs -p "$dir" ipc call shell status ;;
+    keybinds) exec qs -p "$dir" ipc call shell keybinds "${2:-hyprland}" ;;
     help|--help|-h)
-        sed -n '2,15p' "$0" | sed 's/^# \{0,1\}//'
+        sed -n '2,16p' "$0" | sed 's/^# \{0,1\}//'
         echo
         exec qs -p "$dir" ipc show ;;
     kill|quit) exec qs -p "$dir" kill ;;

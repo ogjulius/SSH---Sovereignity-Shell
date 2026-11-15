@@ -175,6 +175,12 @@ ShellRoot {
         const n = KB.niri(sc);
         ok("niri: lens bind", n.indexOf("Mod+Space { spawn \"ssh-shell\" \"lens\" \"toggle\"; }") >= 0);
         ok("niri: carry bind", n.indexOf("Mod+Alt+Shift+Left { spawn \"ssh-shell\" \"atlas\" \"carry\" \"left\"; }") >= 0);
+        const hl = KB.hyprlandLua(sc);
+        ok("hyprland lua: autostart", hl.indexOf('hl.on("hyprland.start", function () hl.exec_cmd("ssh-shell --daemon") end)') >= 0);
+        ok("hyprland lua: lens bind", hl.indexOf('hl.bind("SUPER + SPACE", hl.dsp.exec_cmd("ssh-shell lens toggle"))') >= 0);
+        ok("hyprland lua: traverse bind", hl.indexOf('hl.bind("SUPER + ALT + left", hl.dsp.exec_cmd("ssh-shell atlas traverse left"))') >= 0);
+        ok("hyprland lua: media flags", hl.indexOf('"ssh-shell audio up"), { locked = true, repeating = true })') >= 0);
+        eq("generate dispatches", KB.generate("niri", sc), n);
         ok("niri: balanced braces", (n.match(/\{/g) || []).length === (n.match(/\}/g) || []).length);
     }
 

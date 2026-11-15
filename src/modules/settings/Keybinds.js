@@ -71,3 +71,40 @@ function niri(sc) {
     out.push("}");
     return out.join("\n");
 }
+
+// Hyprland ≥ 0.55 Lua configuration (syntax from Hyprland's shipped
+// /usr/share/hypr/hyprland.lua).
+function luaCombo(mods, key) {
+    var parts = String(mods || "").split(/\s+/).filter(function (m) { return m.length; });
+    parts.push(key);
+    return parts.join(" + ");
+}
+function hyprlandLua(sc) {
+    var out = ["-- SSH — Sovereignity Shell (generated)",
+               "hl.on(\"hyprland.start\", function () hl.exec_cmd(\"ssh-shell --daemon\") end)"];
+    function bind(combo, args, opts) {
+        out.push("hl.bind(\"" + combo + "\", hl.dsp.exec_cmd(\"ssh-shell " + args.join(" ") + "\")" + (opts ? ", " + opts : "") + ")");
+    }
+    for (var i = 0; i < ACTIONS.length; i++) {
+        var k = split(sc[ACTIONS[i][0]]);
+        if (k.key) bind(luaCombo(k.mods, k.key), ACTIONS[i][1]);
+    }
+    for (var d = 0; d < DIRS.length; d++) {
+        if (sc.traverse) bind(luaCombo(sc.traverse, DIRS[d][0]), ["atlas", "traverse", DIRS[d][0]]);
+        if (sc.carry) bind(luaCombo(sc.carry, DIRS[d][0]), ["atlas", "carry", DIRS[d][0]]);
+    }
+    var media = "{ locked = true, repeating = true }";
+    bind("XF86AudioRaiseVolume", ["audio", "up"], media);
+    bind("XF86AudioLowerVolume", ["audio", "down"], media);
+    bind("XF86AudioMute", ["audio", "mute"], "{ locked = true }");
+    bind("XF86AudioMicMute", ["audio", "mic"], "{ locked = true }");
+    bind("XF86MonBrightnessUp", ["brightness", "up"], media);
+    bind("XF86MonBrightnessDown", ["brightness", "down"], media);
+    return out.join("\n");
+}
+
+function generate(target, sc) {
+    if (target === "niri") return niri(sc);
+    if (target === "hyprland-lua") return hyprlandLua(sc);
+    return hyprland(sc);
+}

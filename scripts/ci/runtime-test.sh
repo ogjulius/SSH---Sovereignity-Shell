@@ -89,6 +89,12 @@ if [ "${1:-}" = "--inside" ]; then
     check "notification recorded"           test "$(j 'd["notifications"]["history"]')" -ge 1
     grim "$OUT/notification-$COMP.png"
 
+    if [ "$COMP" = niri ]; then
+        ipc shell keybinds niri | grep -v '^\s*\(WARN\|INFO\)' > "$OUT/binds.kdl"
+        cat "$OUT/niri.kdl" "$OUT/binds.kdl" > "$OUT/niri-with-binds.kdl"
+        check "generated Niri keybind block passes 'niri validate'" niri validate -c "$OUT/niri-with-binds.kdl"
+    fi
+
     st > "$OUT/status-final.json" 2>/dev/null
     "${QS[@]}" kill >/dev/null 2>&1
     echo "$PASS $FAIL" > "$OUT/counts"

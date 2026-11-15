@@ -16,6 +16,7 @@ import qs.modules.lens
 import qs.modules.atlas
 import qs.modules.osd
 import qs.modules.settings
+import "modules/settings/Keybinds.js" as Keybinds
 
 // SSH — Sovereignity Shell.
 //
@@ -142,6 +143,9 @@ ShellRoot {
             });
         }
         function open(surface: string): void { Surfaces.open(surface); }
+        // Keybind block for your compositor from the `shortcuts` options:
+        // target = hyprland | hyprland-lua | niri
+        function keybinds(target: string): string { return Keybinds.generate(target, Config.shortcuts); }
         // Content geometry of the open surface, relative to its window, as
         // "x,y WxH". Add the window's position (hyprctl layers / niri msg) for screen coordinates.
         function rect(): string {
