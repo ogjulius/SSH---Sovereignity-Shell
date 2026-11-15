@@ -41,7 +41,7 @@ FocusScope {
         all = all.concat(Intents.commands(query));
         const apps = Apps.search(query, "all", 6);
         for (let i = 0; i < apps.length; i++)
-            all.push({ kind: "app", title: apps[i].name, subtitle: apps[i].genericName || "Application", glyph: "grid", icon: Quickshell.iconPath(apps[i].icon, "application-x-executable"), score: 700 - i * 40, payload: apps[i] });
+            all.push({ kind: "app", title: apps[i].name, subtitle: apps[i].genericName || "Application", glyph: "grid", icon: Apps.iconPath(apps[i].icon), score: 700 - i * 40, payload: apps[i] });
         all.sort((a, b) => b.score - a.score);
         return all.slice(0, 9);
     }

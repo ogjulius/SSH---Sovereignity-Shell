@@ -82,6 +82,11 @@ Singleton {
         _iconCache[appId] = path || "";
         return path || "";
     }
+    // Themed icon path with an explicit fallback. (Quickshell 0.3.2's
+    // iconPath(name, fallback) form emits a query the provider ignores.)
+    function iconPath(name) {
+        return (name ? Quickshell.iconPath(name, true) : "") || Quickshell.iconPath("application-x-executable", true) || "";
+    }
     function nameFor(appId) {
         const e = appId ? DesktopEntries.heuristicLookup(appId) : null;
         return e ? e.name : appId;

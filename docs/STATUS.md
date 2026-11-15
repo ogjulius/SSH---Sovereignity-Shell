@@ -47,7 +47,7 @@ Legend: ✅ working and verified · 🟡 implemented, partially verified · ⬜ 
 | Offscreen load of all 8 surfaces | clean |
 | Live Hyprland session | runs with no SSH warnings |
 | Benchmark | see `PERFORMANCE.md` |
-| Arch package build (`makepkg`) | see `DISTRIBUTION_SUPPORT.md` |
+| Arch package build (`makepkg`) | builds; packaged tree runs live with all surfaces, no errors |
 | CI | workflow written (`.github/workflows/ci.yml`); not yet run on GitHub |
 
 ## Known problems

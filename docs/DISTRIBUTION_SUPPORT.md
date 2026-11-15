@@ -2,7 +2,7 @@
 
 | Distribution | Status | Packaging | Tested |
 |---|---|---|---|
-| Arch Linux | Official | `packaging/arch/PKGBUILD` (`ssh-shell-git`) | **Yes** — runs on Arch (kernel 7.3.4, Quickshell 0.3.2, Qt 6.12.0); package built with `makepkg` |
+| Arch Linux | Official | `packaging/arch/PKGBUILD` (`ssh-shell-git`) | **Yes** — runs on Arch (kernel 7.3.4, Quickshell 0.3.2, Qt 6.12.0). Package built with `makepkg -d` from the git tree (119 files, dev files excluded) and the extracted package run live on Hyprland: all surfaces opened, no errors. Not installed system-wide with `pacman -U` on the test machine. |
 | CachyOS | Official | Arch PKGBUILD | **No** — same repositories as Arch; needs verification on a CachyOS install |
 | EndeavourOS | Official | Arch PKGBUILD | **No** — same repositories as Arch; needs verification on an EndeavourOS install |
 | Fedora Linux | Official | `packaging/fedora/ssh-shell.spec` | **No** — Quickshell must come from outside Fedora's repos |

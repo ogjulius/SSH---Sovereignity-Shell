@@ -102,7 +102,7 @@ FocusScope {
                     Layout.fillWidth: true
                     current: index === l.current
                     activeFocusOnTab: false
-                    iconSource: Quickshell.iconPath(modelData.icon, "application-x-executable")
+                    iconSource: Apps.iconPath(modelData.icon)
                     title: modelData.name
                     subtitle: modelData.genericName || modelData.comment || ""
                     hint: index === l.current ? "↵" : (index < l.recentShown ? "recent" : "")
