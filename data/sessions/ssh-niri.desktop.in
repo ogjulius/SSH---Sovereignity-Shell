@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Sovereignity Shell (Niri)
+Comment=SSH desktop on Niri. Uses your Niri config; the plain Niri session stays available.
+Exec=@BINDIR@/ssh-session niri
+TryExec=niri
+Type=Application
+DesktopNames=niri
+Keywords=ssh;sovereignity;niri;wayland;

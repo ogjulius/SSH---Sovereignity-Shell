@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Sovereignity Shell (Hyprland)
+Comment=SSH desktop on Hyprland. Uses your Hyprland config; the plain Hyprland session stays available.
+Exec=@BINDIR@/ssh-session hyprland
+TryExec=Hyprland
+Type=Application
+DesktopNames=Hyprland
+Keywords=ssh;sovereignity;hyprland;wayland;

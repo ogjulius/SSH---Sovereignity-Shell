@@ -99,6 +99,11 @@ var tree = {
         poweroff: { t: "argv", d: ["loginctl", "poweroff"] },
         terminal: { t: "argv", d: ["foot"] }
     },
+    session: {
+        // In the Sovereignity Shell login sessions, bind the shortcuts below
+        // automatically (keys your compositor config already binds are left alone).
+        keybinds: { t: "bool", d: true }
+    },
     shortcuts: {
         lens: { t: "str", d: "SUPER, SPACE" },
         launcher: { t: "str", d: "SUPER, D" },

@@ -15,7 +15,8 @@ ColumnLayout {
     readonly property string snippet: KB.generate(target, Config.shortcuts)
 
     Label { Layout.fillWidth: true; role: "caption"; faint: true; wrapMode: Text.WordWrap
-        text: "SSH is driven over IPC (ssh-shell <target> <action>). Edit the keys below, then paste the generated block into your compositor config (also available as `ssh-shell keybinds <target>`). SSH never edits compositor files for you." }
+        text: "In the Sovereignity Shell login sessions these keys are bound automatically; a key your compositor config already uses keeps its own action. Elsewhere, paste the generated block into your compositor config (also `ssh-shell keybinds <target>`). SSH never edits compositor files." }
+    OptionRow { Layout.fillWidth: true; opt: ({ path: "session.keybinds", label: "Bind automatically in SSH sessions" }) }
     Repeater {
         model: ["lens", "launcher", "atlas", "instruments", "power", "traverse", "carry"]
         OptionRow {

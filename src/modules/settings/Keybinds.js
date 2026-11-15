@@ -103,6 +103,58 @@ function hyprlandLua(sc) {
     return out.join("\n");
 }
 
+// ── Runtime binds for SSH login sessions (services/SessionBinds.qml) ──────
+// One structured list, so session binds and the generated blocks agree.
+// Each entry: { mods: "SUPER SHIFT", key: "ESCAPE", args: [...], media: bool, repeat: bool }
+function specs(sc) {
+    var out = [];
+    for (var i = 0; i < ACTIONS.length; i++) {
+        var k = split(sc[ACTIONS[i][0]]);
+        if (k.key) out.push({ mods: k.mods, key: k.key, args: ACTIONS[i][1], media: false, repeat: false });
+    }
+    for (var d = 0; d < DIRS.length; d++) {
+        if (sc.traverse) out.push({ mods: sc.traverse, key: DIRS[d][0], args: ["atlas", "traverse", DIRS[d][0]], media: false, repeat: false });
+        if (sc.carry) out.push({ mods: sc.carry, key: DIRS[d][0], args: ["atlas", "carry", DIRS[d][0]], media: false, repeat: false });
+    }
+    out.push({ mods: "", key: "XF86AudioRaiseVolume", args: ["audio", "up"], media: true, repeat: true });
+    out.push({ mods: "", key: "XF86AudioLowerVolume", args: ["audio", "down"], media: true, repeat: true });
+    out.push({ mods: "", key: "XF86AudioMute", args: ["audio", "mute"], media: true, repeat: false });
+    out.push({ mods: "", key: "XF86AudioMicMute", args: ["audio", "mic"], media: true, repeat: false });
+    out.push({ mods: "", key: "XF86MonBrightnessUp", args: ["brightness", "up"], media: true, repeat: true });
+    out.push({ mods: "", key: "XF86MonBrightnessDown", args: ["brightness", "down"], media: true, repeat: true });
+    return out;
+}
+
+// Hyprland's modifier bitmask, as reported by `hyprctl binds -j`.
+var MASK = { SHIFT: 1, CAPS: 2, CTRL: 4, CONTROL: 4, ALT: 8, MOD2: 16, MOD3: 32, SUPER: 64, WIN: 64, LOGO: 64, MOD4: 64, META: 64, MOD5: 128 };
+function hyprMask(mods) {
+    var m = 0, parts = String(mods || "").toUpperCase().split(/[\s_+]+/);
+    for (var i = 0; i < parts.length; i++) if (MASK[parts[i]]) m |= MASK[parts[i]];
+    return m;
+}
+function comboId(mask, key) { return mask + ":" + String(key).toLowerCase(); }
+
+// Splits specs into those whose key combination is free and those the
+// user's compositor config already binds (`taken`: [{ modmask, key }]).
+function partition(list, taken) {
+    var used = {};
+    for (var i = 0; i < taken.length; i++) if (!taken[i].submap) used[comboId(taken[i].modmask, taken[i].key)] = true;
+    var free = [], skipped = [];
+    for (var j = 0; j < list.length; j++) (used[comboId(hyprMask(list[j].mods), list[j].key)] ? skipped : free).push(list[j]);
+    return { free: free, skipped: skipped };
+}
+
+function cmd(args) { return "ssh-shell " + args.join(" "); }
+function hyprlandLuaBind(b) {
+    var opts = b.media ? (b.repeat ? ", { locked = true, repeating = true }" : ", { locked = true }") : "";
+    return "hl.bind(\"" + luaCombo(b.mods, b.key) + "\", hl.dsp.exec_cmd(\"" + cmd(b.args) + "\")" + opts + ")";
+}
+function hyprlandLuaUnbind(b) { return "hl.unbind(\"" + luaCombo(b.mods, b.key) + "\")"; }
+function hyprlandKeyword(b) {
+    return "keyword " + (b.media ? (b.repeat ? "bindel" : "bindl") : "bind") + " " + b.mods + ", " + b.key + ", exec, " + cmd(b.args);
+}
+function hyprlandUnkeyword(b) { return "keyword unbind " + b.mods + ", " + b.key; }
+
 function generate(target, sc) {
     if (target === "niri") return niri(sc);
     if (target === "hyprland-lua") return hyprlandLua(sc);

@@ -1,0 +1,18 @@
+#compdef ssh-shell
+# zsh completion for ssh-shell (SSH — Sovereignity Shell)
+local -a top
+top=(run --daemon status keybinds doctor check-config quit version help lens launcher atlas panel audio brightness notifications settings shell)
+if (( CURRENT == 2 )); then compadd -a top; return; fi
+case ${words[CURRENT-1]} in
+  lens) compadd toggle open close ;;
+  launcher|settings) compadd toggle open ;;
+  atlas) compadd toggle traverse carry goto collection where ;;
+  traverse|carry) compadd left right up down ;;
+  panel) compadd toggle close ;;
+  toggle) [[ ${words[2]} == panel ]] && compadd instruments almanac signals power ;;
+  audio) compadd up down mute mic ;;
+  brightness) compadd up down ;;
+  notifications) compadd quiet clear ;;
+  keybinds) compadd hyprland hyprland-lua niri ;;
+  check-config) _files ;;
+esac

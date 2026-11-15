@@ -9,6 +9,10 @@
 #       ssh-shell panel toggle instruments
 #   ssh-shell status          print machine-readable status (JSON)
 #   ssh-shell keybinds hyprland|hyprland-lua|niri   print a keybind block
+#   ssh-shell doctor          check the installation and login sessions
+#   ssh-shell check-config [FILE]   validate a configuration file
+#   ssh-shell quit            stop the running shell
+#   ssh-shell version
 #   ssh-shell help            list IPC targets
 #
 # SSH_SHELL_DIR overrides where the QML lives (default: the installed copy,
@@ -21,6 +25,111 @@ elif [ -f "$here/../src/shell.qml" ]; then dir=$here/../src
 elif [ -f "$here/../share/ssh-shell/shell.qml" ]; then dir=$here/../share/ssh-shell
 else dir=/usr/share/ssh-shell
 fi
+state=${XDG_STATE_HOME:-$HOME/.local/state}/ssh-shell
+
+version() { sed -n 's/.*version: "\(.*\)".*/\1/p' "$dir/configuration/Version.qml" 2>/dev/null || echo unknown; }
+
+# ── doctor: installation and session checks (works without a running shell) ──
+doctor() {
+    fails=0; warns=0
+    ok()   { printf '  \033[32m✓\033[0m %s\n' "$*"; }
+    bad()  { printf '  \033[31m✗\033[0m %s\n' "$*"; fails=$((fails+1)); }
+    warn() { printf '  \033[33m!\033[0m %s\n' "$*"; warns=$((warns+1)); }
+    have() { command -v "$1" >/dev/null 2>&1; }
+    sessions_dir=""
+    for d in /usr/share/wayland-sessions /usr/local/share/wayland-sessions /run/current-system/sw/share/wayland-sessions; do
+        [ -d "$d" ] && sessions_dir="$sessions_dir $d"
+    done
+    find_session() { for d in $sessions_dir; do [ -f "$d/$1" ] && { echo "$d/$1"; return 0; }; done; return 1; }
+
+    echo "SSH $(version) — doctor"
+    echo "Installation"
+    [ -f "$dir/shell.qml" ] && ok "QML tree: $dir" || bad "QML tree not found at $dir"
+    if have qs; then ok "Quickshell: $(qs --version 2>/dev/null | head -1)"; else bad "Quickshell (qs) is not installed"; fi
+    have ssh-session && ok "session launcher: $(command -v ssh-session)" || bad "ssh-session is not on PATH"
+    if have fc-list; then
+        fc-list : family | grep -qi '^inter' && ok "font: Inter" || warn "font Inter not found (falls back to the system sans)"
+        fc-list : family | grep -qi 'jetbrains' && ok "font: JetBrains Mono" || warn "font JetBrains Mono not found (falls back to the system monospace)"
+    fi
+    cfg=${SSH_SHELL_CONFIG:-${XDG_CONFIG_HOME:-$HOME/.config}/ssh-shell/config.json}
+    if [ -f "$cfg" ]; then
+        if out=$(check_config "$cfg" 2>&1); then ok "configuration valid: $cfg"; else bad "configuration: $out"; fi
+    else ok "configuration: defaults (no $cfg)"; fi
+
+    echo "Login sessions"
+    for c in hyprland niri; do
+        case $c in hyprland) bin=Hyprland; orig=hyprland.desktop ;; niri) bin=niri; orig=niri.desktop ;; esac
+        if ! have "$bin"; then echo "  - $c: not installed"; continue; fi
+        if s=$(find_session "ssh-$c.desktop"); then ok "Sovereignity Shell ($c): $s"; else bad "Sovereignity Shell ($c) session file missing"; fi
+        if s=$(find_session "$orig"); then ok "recovery session kept: $s"; else warn "no plain $c session file found (the compositor package normally ships one)"; fi
+        if have ssh-session; then
+            if ssh-session --check "$c" >/dev/null 2>&1; then ok "ssh-session --check $c"
+            else bad "ssh-session --check $c failed:"; ssh-session --check "$c" 2>&1 | sed 's/^/      /'; fi
+        fi
+    done
+
+    echo "Environment"
+    dm=$(readlink /etc/systemd/system/display-manager.service 2>/dev/null | xargs -r basename 2>/dev/null || true)
+    [ -z "$dm" ] && [ -d /var/service ] && for s in sddm gdm lightdm greetd ly; do [ -e "/var/service/$s" ] && dm=$s; done
+    if [ -n "$dm" ]; then ok "display manager: ${dm%.service}"; else warn "no display manager detected: start a session from a TTY with 'ssh-session hyprland' or 'ssh-session niri'"; fi
+    if have systemctl && [ -z "${SSH_SESSION:-}" ] && systemctl --user show-environment 2>/dev/null | grep -q '^NIRI_CONFIG=.*ssh-shell'; then
+        warn "a previous SSH Niri session left NIRI_CONFIG in the systemd user environment; fix: systemctl --user unset-environment NIRI_CONFIG SSH_SESSION"
+    fi
+    [ -n "${SSH_SESSION:-}" ] && ok "running inside the SSH $SSH_SESSION session"
+    [ -f "$state/session.log" ] && echo "  session log: $state/session.log"
+    [ -f "$state/shell.log" ] && echo "  shell log:   $state/shell.log"
+    echo
+    if [ $fails -eq 0 ]; then echo "No problems found ($warns warning(s))."; else echo "$fails problem(s), $warns warning(s)."; fi
+    [ $fails -eq 0 ]
+}
+
+check_config() { # validates with SSH's own schema, headless
+    f=${1:-${SSH_SHELL_CONFIG:-${XDG_CONFIG_HOME:-$HOME/.config}/ssh-shell/config.json}}
+    [ -f "$f" ] || { echo "no such file: $f"; return 1; }
+    out=$(SSH_SHELL_CONFIG=$f QT_QPA_PLATFORM=offscreen timeout -k 3 20 qs -p "$dir/check-config.qml" </dev/null 2>&1 \
+          | sed 's/\x1b\[[0-9;]*m//g' | sed -n 's/.*\(SSH-CHECK .*\)/\1/p')
+    case $out in
+        *"SSH-CHECK OK"*) return 0 ;;
+        "") echo "could not run the configuration check"; return 1 ;;
+        *) printf '%s\n' "$out" | sed 's/^SSH-CHECK //'; return 1 ;;
+    esac
+}
+
+# ── session-run: start SSH inside a login session, with bounded restarts ──
+session_run() {
+    mkdir -p "$state"
+    log=$state/shell.log
+    [ -f "$log" ] && mv -f "$log" "$log.old"
+    crashes=0
+    while :; do
+        start=$(date +%s)
+        rc=0
+        qs -n -p "$dir" >>"$log" 2>&1 || rc=$?
+        # 0: quit on purpose, or another copy is already running (qs -n).
+        [ $rc -eq 0 ] && exit 0
+        # The compositor is gone: the session is ending.
+        [ -n "${WAYLAND_DISPLAY:-}" ] && [ ! -S "${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/$WAYLAND_DISPLAY" ] && exit 0
+        [ $(( $(date +%s) - start )) -gt 60 ] && crashes=0
+        crashes=$((crashes+1))
+        echo "ssh-shell: exited with status $rc (failure $crashes of 3)" >>"$log"
+        if [ $crashes -ge 3 ]; then
+            msg="SSH stopped after 3 failed starts. Your compositor keeps running. Log: $log"
+            echo "ssh-shell: $msg" >>"$log"
+            if [ -n "${HYPRLAND_INSTANCE_SIGNATURE:-}" ] && command -v hyprctl >/dev/null 2>&1; then
+                hyprctl notify 3 15000 0 "$msg" >/dev/null 2>&1 || true
+            elif command -v notify-send >/dev/null 2>&1; then
+                notify-send -u critical "Sovereignity Shell" "$msg" 2>/dev/null || true
+            fi
+            exit 1
+        fi
+        sleep 2
+    done
+}
+
+case "${1:-}" in
+    version|--version|-V) version; exit 0 ;;
+    doctor) doctor; exit $? ;;
+esac
 
 if ! command -v qs >/dev/null 2>&1; then
     echo "ssh-shell: quickshell (qs) is not installed" >&2
@@ -30,10 +139,12 @@ fi
 case "${1:-}" in
     ""|run) exec qs -n -p "$dir" ;;
     --daemon|-d) exec qs -n -d -p "$dir" ;;
+    session-run) session_run ;;
+    check-config) shift; check_config "$@" && echo "configuration valid" ;;
     status) exec qs -p "$dir" ipc call shell status ;;
     keybinds) exec qs -p "$dir" ipc call shell keybinds "${2:-hyprland}" ;;
     help|--help|-h)
-        sed -n '2,16p' "$0" | sed 's/^# \{0,1\}//'
+        sed -n '2,19p' "$0" | sed 's/^# \{0,1\}//'
         echo
         exec qs -p "$dir" ipc show ;;
     kill|quit) exec qs -p "$dir" kill ;;

@@ -182,6 +182,27 @@ ShellRoot {
         ok("hyprland lua: media flags", hl.indexOf('"ssh-shell audio up"), { locked = true, repeating = true })') >= 0);
         eq("generate dispatches", KB.generate("niri", sc), n);
         ok("niri: balanced braces", (n.match(/\{/g) || []).length === (n.match(/\}/g) || []).length);
+
+        // Session (runtime) binds
+        const sp = KB.specs(sc);
+        eq("specs: 5 actions + 8 arrows + 6 media", sp.length, 19);
+        eq("mask: SUPER", KB.hyprMask("SUPER"), 64);
+        eq("mask: SUPER SHIFT", KB.hyprMask("SUPER SHIFT"), 65);
+        eq("mask: SUPER ALT SHIFT", KB.hyprMask("SUPER ALT SHIFT"), 73);
+        eq("mask: lower case and CTRL", KB.hyprMask("ctrl alt"), 12);
+        eq("mask: none", KB.hyprMask(""), 0);
+        const taken = [{ modmask: 64, key: "SPACE", submap: "" }, { modmask: 0, key: "XF86AudioRaiseVolume", submap: "" },
+                       { modmask: 64, key: "D", submap: "resize" }];
+        const p = KB.partition(sp, taken);
+        eq("partition: user's SUPER+SPACE and volume key are kept", p.skipped.map(b => b.key), ["SPACE", "XF86AudioRaiseVolume"]);
+        eq("partition: a bind inside a submap does not block", p.free.some(b => b.key === "D"), true);
+        eq("partition: counts add up", p.free.length + p.skipped.length, sp.length);
+        eq("lua bind", KB.hyprlandLuaBind(sp[0]), 'hl.bind("SUPER + SPACE", hl.dsp.exec_cmd("ssh-shell lens toggle"))');
+        eq("lua unbind", KB.hyprlandLuaUnbind(sp[0]), 'hl.unbind("SUPER + SPACE")');
+        eq("classic keyword", KB.hyprlandKeyword(sp[0]), "keyword bind SUPER, SPACE, exec, ssh-shell lens toggle");
+        eq("classic media keyword", KB.hyprlandKeyword(sp[13]), "keyword bindel , XF86AudioRaiseVolume, exec, ssh-shell audio up");
+        eq("classic unbind", KB.hyprlandUnkeyword(sp[0]), "keyword unbind SUPER, SPACE");
+        eq("session.keybinds default on", Schema.defaults().session.keybinds, true);
     }
 
     function testIntents() {

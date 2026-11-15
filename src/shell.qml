@@ -26,6 +26,9 @@ import "modules/settings/Keybinds.js" as Keybinds
 ShellRoot {
     id: root
 
+    // In an SSH login session, add the shortcut bindings (services/SessionBinds.qml).
+    readonly property bool sessionBinds: SessionBinds.active
+
     // ── Resident ──────────────────────────────────────────────────────
     Variants {
         model: Quickshell.screens.filter(s => Config.meridian.monitors.length === 0 || Config.meridian.monitors.indexOf(s.name) >= 0)
