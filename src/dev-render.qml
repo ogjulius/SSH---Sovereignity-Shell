@@ -25,6 +25,7 @@ import qs.modules.signals
 import qs.modules.power
 import qs.modules.lens
 import qs.modules.atlas
+import qs.modules.settings
 
 ShellRoot {
     id: root
@@ -41,6 +42,8 @@ ShellRoot {
         instruments: { comp: instrumentsC, place: "anchor-right", dim: 0 },
         almanac: { comp: almanacC, place: "anchor-clock", dim: 0 },
         signals: { comp: signalsC, place: "anchor-right", dim: 0 },
+        // Fixture records (clearly fake) so notification cards can be reviewed.
+        "signals-fixture": { comp: signalsC, place: "anchor-right", dim: 0, fixture: true },
         power: { comp: powerC, place: "center", dim: 0.7 },
         lens: { comp: lensC, place: "fill", dim: Config.lens.dim },
         atlas: { comp: atlasC, place: "fill", dim: 0 }
@@ -71,19 +74,38 @@ ShellRoot {
             root.mode = job.mode;
             Config.apply({ appearance: { mode: job.mode } });
             root.current = job.target;
-            Surfaces.active = job.target === "meridian" ? "" : job.target;
+            if (job.target.indexOf("settings:") === 0) {
+                SettingsHub.page = job.target.slice(9);
+                settingsLoader.active = true;
+                grab.start();
+                return;
+            }
+            settingsLoader.active = false;
+            Notifs.history = root.specs[job.target] && root.specs[job.target].fixture ? root.fixture() : [];
+            Surfaces.active = job.target === "meridian" ? "" : job.target.replace("-fixture", "");
             grab.start();
         }
     }
     Timer {
         id: grab
         interval: 1600
-        onTriggered: frame.grabToImage(r => {
-            const path = root.out + "/" + root.current + "-" + root.mode + ".png";
+        onTriggered: (settingsLoader.active && settingsLoader.item ? settingsLoader.item.body : frame).grabToImage(r => {
+            const path = root.out + "/" + root.current.replace(":", "-") + "-" + root.mode + ".png";
             console.log("[render] " + path + " " + r.saveToFile(path));
             step.start();
         })
     }
+
+    function fixture() {
+        const now = Date.now();
+        return [
+            { id: 9001, app: "Example Mail", appIcon: "", summary: "Fixture: weekly report", body: "This is sample text used only by the render harness.", image: "", urgency: 1, time: now - 120000, read: true, actions: [{ id: "default", text: "Open" }, { id: "archive", text: "Archive" }] },
+            { id: 9002, app: "Example Mail", appIcon: "", summary: "Fixture: second message", body: "Grouped under the same sender.", image: "", urgency: 1, time: now - 900000, read: true, actions: [] },
+            { id: 9003, app: "Example Build", appIcon: "", summary: "Fixture: build failed", body: "Critical urgency shows a left rule, not a red flood.", image: "", urgency: 2, time: now - 30000, read: true, actions: [] }
+        ];
+    }
+
+    LazyLoader { id: settingsLoader; active: false; SettingsWindow {} }
 
     FloatingWindow {
         implicitWidth: 1920

@@ -47,7 +47,8 @@ Item {
                 source: card.record.appIcon ? Quickshell.iconPath(card.record.appIcon, true) : ""
                 visible: source.toString().length > 0
             }
-            Label { role: "micro"; faint: true; text: card.record.app; Layout.fillWidth: true }
+            // In grouped history the sender is already the group header.
+            Label { role: "micro"; faint: true; text: card.popup ? card.record.app : ""; Layout.fillWidth: true }
             Label { role: "micro"; faint: true; text: Fmt.relativeTime(card.record.time, Time.now.getTime()) }
             IconButton { icon: "close"; iconSize: 11; implicitWidth: 20; implicitHeight: 20; visible: hover.hovered; onClicked: card.popup ? Notifs.dropPopup(card.record.id) : Notifs.dismiss(card.record.id) }
         }

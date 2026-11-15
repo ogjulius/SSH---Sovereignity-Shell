@@ -20,8 +20,10 @@ FloatingWindow {
     onVisibleChanged: if (!visible) SettingsHub.close()
 
     readonly property var page: Pages.pages.find(p => p.key === SettingsHub.page) || Pages.pages[0]
+    readonly property Item body: rootItem   // grabbable root (used by the render harness)
 
     Item {
+        id: rootItem
         anchors.fill: parent
         focus: true
         Keys.onEscapePressed: SettingsHub.close()
@@ -41,9 +43,10 @@ FloatingWindow {
                     Layout.bottomMargin: Theme.s5
                     Icon { name: "sigil"; size: 22; color: Theme.accent }
                     ColumnLayout {
+                        Layout.fillWidth: true
                         spacing: 0
-                        Label { role: "title"; text: "Sovereignity" }
-                        Label { role: "micro"; faint: true; text: "settings · " + Version.version }
+                        Label { Layout.fillWidth: true; role: "title"; text: "Sovereignity" }
+                        Label { Layout.fillWidth: true; role: "micro"; faint: true; text: "v" + Version.version }
                     }
                 }
                 Repeater {
