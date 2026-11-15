@@ -34,13 +34,17 @@ jobs:
       - uses: actions/checkout@v4
       - name: Template parses
         run: bash -n packaging/void/srcpkgs/ssh-shell/template
-      - name: Template dependencies (quickshell is expected to be absent)
+      - name: Discover package names (informational)
+        run: |
+          xbps-query -R -p pkgver quickshell || true
+          xbps-query -Rs jetbrains || true
+          xbps-query -Rs inter | grep -i font || true
+      - name: Template dependencies exist
         shell: bash
         run: |
           source packaging/void/srcpkgs/ssh-shell/template
           for p in $depends; do
             if xbps-query -R "$p" >/dev/null 2>&1; then echo "found    $p"
-            elif [ "$p" = quickshell ]; then echo "absent   quickshell (expected: build from source)"
             else echo "MISSING  $p"; missing=1; fi
           done
           test -z "${missing:-}"
