@@ -16,6 +16,7 @@
 |---|---|
 | [Product vision](PRODUCT_VISION.md) | Why SSH exists and what it optimises for |
 | [Interaction model](INTERACTION_MODEL.md) | Cells, collections, the Lens, the Atlas, every key |
+| [Keybinds](KEYBINDS.md) | The default scheme, its rationale, and how to change a key |
 | [Design philosophy](DESIGN_PHILOSOPHY.md) | Colour, type, geometry, motion, components |
 | [Originality analysis](ORIGINALITY_ANALYSIS.md) | The three concepts explored and why this one won |
 

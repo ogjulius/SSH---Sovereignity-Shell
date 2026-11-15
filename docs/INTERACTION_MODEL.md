@@ -31,11 +31,12 @@ so keys never leak to the window underneath.
 |---|---|
 | `Super+Alt+←↑↓→` | travel to the neighbouring cell |
 | `Super+Alt+Shift+←↑↓→` | carry the focused window to the neighbouring cell (and follow) |
-| `Super+Tab` | open the Atlas |
-| `Super+Space` | open the Lens |
-| `Super+D` | launcher |
-| `Super+A` | Instruments |
+| `Super+A` | open the Atlas |
+| `Super+O` | open the Lens |
+| `Super+Space` | launcher |
+| `Super+G` | Instruments |
 | `Super+Shift+Esc` | power menu |
+| `Super+F1` | every key (the full scheme: [KEYBINDS.md](KEYBINDS.md)) |
 
 Arriving at an unbound cell **claims** it: SSH creates a workspace for it. On
 Hyprland, row 1 of the first collection mirrors workspaces 1–10, so `Super+3`
@@ -44,7 +45,7 @@ workspace SSH has not seen is placed on the map automatically.
 
 ## The Lens
 
-Opened with `Super+Space` or the sigil in the Meridian.
+Opened with `Super+O` or the sigil in the Meridian.
 
 - **Centre:** the current cell — name, coordinate, its windows.
   `↑↓` choose, `Enter` focuses, `Del` closes the window.
@@ -59,7 +60,7 @@ Opened with `Super+Space` or the sigil in the Meridian.
 
 ## The Atlas
 
-Opened with `Super+Tab`, the minimap, or the coordinate in the Meridian.
+Opened with `Super+A`, the minimap, or the coordinate in the Meridian.
 
 | Key | Action |
 |---|---|

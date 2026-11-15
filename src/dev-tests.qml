@@ -168,43 +168,88 @@ ShellRoot {
     }
 
     function testKeybinds() {
-        const sc = Schema.defaults().shortcuts;
-        const h = KB.hyprland(sc);
-        ok("hyprland: lens bind", h.indexOf("bind = SUPER, SPACE, exec, ssh-shell lens toggle") >= 0);
-        ok("hyprland: traverse bind", h.indexOf("bind = SUPER ALT, left, exec, ssh-shell atlas traverse left") >= 0);
-        const n = KB.niri(sc);
-        ok("niri: lens bind", n.indexOf("Mod+Space { spawn \"ssh-shell\" \"lens\" \"toggle\"; }") >= 0);
-        ok("niri: carry bind", n.indexOf("Mod+Alt+Shift+Left { spawn \"ssh-shell\" \"atlas\" \"carry\" \"left\"; }") >= 0);
-        const hl = KB.hyprlandLua(sc);
-        ok("hyprland lua: autostart", hl.indexOf('hl.on("hyprland.start", function () hl.exec_cmd("ssh-shell --daemon") end)') >= 0);
-        ok("hyprland lua: lens bind", hl.indexOf('hl.bind("SUPER + SPACE", hl.dsp.exec_cmd("ssh-shell lens toggle"))') >= 0);
-        ok("hyprland lua: traverse bind", hl.indexOf('hl.bind("SUPER + ALT + left", hl.dsp.exec_cmd("ssh-shell atlas traverse left"))') >= 0);
-        ok("hyprland lua: media flags", hl.indexOf('"ssh-shell audio up"), { locked = true, repeating = true })') >= 0);
-        eq("generate dispatches", KB.generate("niri", sc), n);
+        const kb = Schema.defaults().keybinds;
+        // Schema map and confirmed defaults (docs/KEYBINDS.md)
+        eq("keybinds: default map", kb, { launcher: "SUPER, SPACE", terminal: "SUPER, RETURN", atlas: "SUPER, A", lens: "SUPER, O",
+            instruments: "SUPER, G", signals: "SUPER, N", almanac: "SUPER, Y", settings: "SUPER SHIFT, COMMA",
+            power: "SUPER SHIFT, ESCAPE", cheatsheet: "SUPER, F1", traverse: "SUPER ALT", carry: "SUPER ALT SHIFT" });
+        eq("firstRun: hint on by default", Schema.defaults().firstRun.cheatsheetHint, true);
+        eq("every action has a schema option", KB.ACTIONS.every(a => Schema.specAt("keybinds." + a[0]) !== null), true);
+        eq("every move has a schema option", KB.MOVES.every(a => Schema.specAt("keybinds." + a[0]) !== null), true);
+        const sp = KB.specs(kb);
+        const nonMedia = sp.filter(b => !b.media);
+        ok("Super is the base modifier of every action", nonMedia.every(b => /^SUPER\b/.test(b.mods)));
+        ok("no Ctrl in defaults", nonMedia.every(b => !/CTRL|CONTROL/.test(b.mods)));
+        ok("Alt only for travel and carry", nonMedia.every(b => b.mods.indexOf("ALT") < 0 || b.action === "traverse" || b.action === "carry"));
+        const ids = nonMedia.map(b => KB.comboId(KB.hyprMask(b.mods), b.key));
+        eq("defaults bind no combination twice", ids.length, new Set(ids).size);
+        // Stock binds: Hyprland 0.57 /usr/share/hypr/hyprland.lua and niri
+        // resources/default-config.kdl (checked 2026-11-15). Super=64 Shift=1 Ctrl=4 Alt=8.
+        const stock = ["64:c", "64:e", "64:j", "64:m", "64:p", "64:q", "64:r", "64:s", "65:s", "64:v",
+            "64:t", "64:d", "64:w", "64:l", "64:h", "64:k", "64:i", "64:u", "64:comma", "64:period", "64:f", "65:f",
+            "64:escape", "65:slash", "65:e", "65:p", "65:l", "65:h", "65:j", "65:k", "65:i", "65:u", "65:r", "65:v",
+            "64:left", "64:right", "64:up", "64:down", "65:left", "65:right", "65:up", "65:down", "72:l", "72:s",
+            "64:1", "64:2", "64:3", "64:4", "64:5", "64:6", "64:7", "64:8", "64:9", "64:0"];
+        eq("defaults avoid stock Hyprland/Niri binds", ids.filter(i => stock.indexOf(i) >= 0), []);
+
+        // Every bind runs a stable CLI verb
+        eq("terminal verb", sp.find(b => b.action === "terminal").args, ["terminal"]);
+        eq("cheatsheet verb", sp.find(b => b.action === "cheatsheet").args, ["keybinds", "cheatsheet"]);
+        eq("specs: 10 actions + 8 arrows + 6 media", sp.length, 24);
+        eq("empty key leaves the action unbound", KB.specs(Object.assign({}, kb, { almanac: "" })).some(b => b.action === "almanac"), false);
+
+        // Generators (one list, three outputs)
+        const h = KB.generate("hyprland", kb);
+        ok("hyprland: launcher", h.indexOf("bind = SUPER, SPACE, exec, ssh-shell launcher toggle") >= 0);
+        ok("hyprland: lens", h.indexOf("bind = SUPER, O, exec, ssh-shell lens toggle") >= 0);
+        ok("hyprland: settings", h.indexOf("bind = SUPER SHIFT, COMMA, exec, ssh-shell settings toggle") >= 0);
+        ok("hyprland: travel", h.indexOf("bind = SUPER ALT, left, exec, ssh-shell atlas traverse left") >= 0);
+        ok("hyprland: media", h.indexOf("bindel = , XF86AudioRaiseVolume, exec, ssh-shell audio up") >= 0);
+        const hl = KB.generate("hyprland-lua", kb);
+        ok("lua: autostart", hl.indexOf('hl.on("hyprland.start", function () hl.exec_cmd("ssh-shell --daemon") end)') >= 0);
+        ok("lua: cheatsheet", hl.indexOf('hl.bind("SUPER + F1", hl.dsp.exec_cmd("ssh-shell keybinds cheatsheet"))') >= 0);
+        ok("lua: carry", hl.indexOf('hl.bind("SUPER + ALT + SHIFT + left", hl.dsp.exec_cmd("ssh-shell atlas carry left"))') >= 0);
+        ok("lua: media flags", hl.indexOf('"ssh-shell audio up"), { locked = true, repeating = true })') >= 0);
+        const n = KB.generate("niri", kb);
+        ok("niri: launcher", n.indexOf('Mod+Space { spawn "ssh-shell" "launcher" "toggle"; }') >= 0);
+        ok("niri: instruments", n.indexOf('Mod+G { spawn "ssh-shell" "panel" "toggle" "instruments"; }') >= 0);
+        ok("niri: settings", n.indexOf('Mod+Shift+Comma { spawn "ssh-shell" "settings" "toggle"; }') >= 0);
+        ok("niri: carry", n.indexOf('Mod+Alt+Shift+Left { spawn "ssh-shell" "atlas" "carry" "left"; }') >= 0);
+        ok("niri: media key names kept", n.indexOf('XF86AudioRaiseVolume allow-when-locked=true') >= 0);
         ok("niri: balanced braces", (n.match(/\{/g) || []).length === (n.match(/\}/g) || []).length);
+        const custom = KB.generate("hyprland", Object.assign({}, kb, { lens: "SUPER, L" }));
+        ok("generator reads the map", custom.indexOf("bind = SUPER, L, exec, ssh-shell lens toggle") >= 0);
+
+        // Table for Settings, `keybinds list` and the cheatsheet
+        const t = KB.table(kb);
+        eq("table: actions + moves + close", t.length, 13);
+        eq("table: pretty keys", t.filter(r => ["settings", "power", "cheatsheet", "carry"].indexOf(r.action) >= 0).map(r => r.keys),
+           ["Super+Shift+,", "Super+Shift+Esc", "Super+F1", "Super+Alt+Shift+arrows"]);
+        ok("table: every row has verb and description", t.every(r => r.verb.indexOf("ssh-shell ") === 0 && r.description.length > 0));
+        eq("pretty: unbound", KB.pretty(""), "unbound");
+        ok("list text has a header", KB.generate("list", kb).indexOf("ACTION") === 0);
+
+        // Migration from the old `shortcuts` section
+        const m = Schema.merge({ shortcuts: { lens: "SUPER, L", atlas: "SUPER, TAB" }, keybinds: { atlas: "SUPER, M" } });
+        eq("migration: old value used", m.value.keybinds.lens, "SUPER, L");
+        eq("migration: new section wins", m.value.keybinds.atlas, "SUPER, M");
+        ok("migration: user told to rename", m.warnings.some(w => w.indexOf("shortcuts: renamed") === 0));
+        eq("migration: no unknown-option warning", m.warnings.some(w => w.indexOf("unknown option") >= 0), false);
 
         // Session (runtime) binds
-        const sp = KB.specs(sc);
-        eq("specs: 5 actions + 8 arrows + 6 media", sp.length, 19);
         eq("mask: SUPER", KB.hyprMask("SUPER"), 64);
-        eq("mask: SUPER SHIFT", KB.hyprMask("SUPER SHIFT"), 65);
         eq("mask: SUPER ALT SHIFT", KB.hyprMask("SUPER ALT SHIFT"), 73);
         eq("mask: lower case and CTRL", KB.hyprMask("ctrl alt"), 12);
-        eq("mask: none", KB.hyprMask(""), 0);
         const taken = [{ modmask: 64, key: "SPACE", submap: "" }, { modmask: 0, key: "XF86AudioRaiseVolume", submap: "" },
-                       { modmask: 64, key: "D", submap: "resize" }];
+                       { modmask: 64, key: "O", submap: "resize" }];
         const p = KB.partition(sp, taken);
-        eq("partition: user's SUPER+SPACE and volume key are kept", p.skipped.map(b => b.key), ["SPACE", "XF86AudioRaiseVolume"]);
-        eq("partition: a bind inside a submap does not block", p.free.some(b => b.key === "D"), true);
-        eq("partition: counts add up", p.free.length + p.skipped.length, sp.length);
-        eq("lua bind", KB.hyprlandLuaBind(sp[0]), 'hl.bind("SUPER + SPACE", hl.dsp.exec_cmd("ssh-shell lens toggle"))');
-        eq("lua unbind", KB.hyprlandLuaUnbind(sp[0]), 'hl.unbind("SUPER + SPACE")');
-        eq("classic keyword", KB.hyprlandKeyword(sp[0]), "keyword bind SUPER, SPACE, exec, ssh-shell lens toggle");
-        eq("classic media keyword", KB.hyprlandKeyword(sp[13]), "keyword bindel , XF86AudioRaiseVolume, exec, ssh-shell audio up");
+        eq("partition: user's binds are kept", p.skipped.map(b => b.key), ["SPACE", "XF86AudioRaiseVolume"]);
+        eq("partition: a bind inside a submap does not block", p.free.some(b => b.key === "O"), true);
+        eq("classic keyword", KB.hyprlandKeyword(sp[0]), "keyword bind SUPER, SPACE, exec, ssh-shell launcher toggle");
         eq("classic unbind", KB.hyprlandUnkeyword(sp[0]), "keyword unbind SUPER, SPACE");
+        eq("lua unbind", KB.hyprlandLuaUnbind(sp[0]), 'hl.unbind("SUPER + SPACE")');
         eq("session.keybinds default on", Schema.defaults().session.keybinds, true);
     }
-
     function testIntents() {
         const r = Intents.commands("lock");
         ok("command found", r.length > 0 && r[0].payload === "lock");

@@ -16,6 +16,7 @@ import qs.modules.lens
 import qs.modules.atlas
 import qs.modules.osd
 import qs.modules.settings
+import qs.modules.cheatsheet
 import "modules/settings/Keybinds.js" as Keybinds
 
 // SSH — Sovereignity Shell.
@@ -43,6 +44,7 @@ ShellRoot {
     LazyLoader { active: Surfaces.loaded.almanac === true; Almanac {} }
     LazyLoader { active: Surfaces.loaded.signals === true; Signals {} }
     LazyLoader { active: Surfaces.loaded.power === true; PowerMenu {} }
+    LazyLoader { active: Surfaces.loaded.cheatsheet === true; Cheatsheet {} }
     LazyLoader { active: SettingsHub.shown; SettingsWindow {} }
 
     // Disabled surfaces must not leave a dangling "active" state.
@@ -127,6 +129,17 @@ ShellRoot {
         function clear(): void { Notifs.clearAll(); }
     }
     IpcHandler {
+        // `ssh-shell terminal`: opens commands.terminal (argv, no shell).
+        target: "terminal"
+        function open(): void { Quickshell.execDetached(Config.commands.terminal); }
+    }
+    IpcHandler {
+        // `ssh-shell keybinds cheatsheet` / `ssh-shell keybinds list`.
+        target: "keybinds"
+        function cheatsheet(): void { Surfaces.toggle("cheatsheet"); }
+        function list(): string { return Keybinds.generate("list", Config.keybinds); }
+    }
+    IpcHandler {
         target: "settings"
         function open(): void { SettingsHub.open(); }
         function toggle(): void { SettingsHub.toggle(); }
@@ -148,7 +161,7 @@ ShellRoot {
         function open(surface: string): void { Surfaces.open(surface); }
         // Keybind block for your compositor from the `shortcuts` options:
         // target = hyprland | hyprland-lua | niri
-        function keybinds(target: string): string { return Keybinds.generate(target, Config.shortcuts); }
+        function keybinds(target: string): string { return Keybinds.generate(target, Config.keybinds); }
         // Content geometry of the open surface, relative to its window, as
         // "x,y WxH". Add the window's position (hyprctl layers / niri msg) for screen coordinates.
         function rect(): string {

@@ -23,6 +23,7 @@ import qs.modules.instruments
 import qs.modules.almanac
 import qs.modules.signals
 import qs.modules.power
+import qs.modules.cheatsheet
 import qs.modules.lens
 import qs.modules.atlas
 import qs.modules.settings
@@ -31,7 +32,7 @@ ShellRoot {
     id: root
     readonly property string out: Quickshell.env("SSH_RENDER_OUT") || "/tmp"
     readonly property var modes: (Quickshell.env("SSH_RENDER_MODES") || "dark").split(" ")
-    readonly property var targets: (Quickshell.env("SSH_RENDER") || "meridian lens atlas launcher instruments almanac signals power").split(" ").filter(t => t.length)
+    readonly property var targets: (Quickshell.env("SSH_RENDER") || "meridian lens atlas launcher instruments almanac signals power cheatsheet").split(" ").filter(t => t.length)
     property var queue: []
     property string current: ""
     property string mode: "dark"
@@ -45,6 +46,7 @@ ShellRoot {
         // Fixture records (clearly fake) so notification cards can be reviewed.
         "signals-fixture": { comp: signalsC, place: "anchor-right", dim: 0, fixture: true },
         power: { comp: powerC, place: "center", dim: 0.7 },
+        cheatsheet: { comp: cheatC, place: "center", dim: 0.55 },
         lens: { comp: lensC, place: "fill", dim: Config.lens.dim },
         atlas: { comp: atlasC, place: "fill", dim: 0 }
     })
@@ -54,6 +56,7 @@ ShellRoot {
     Component { id: almanacC; AlmanacContent {} }
     Component { id: signalsC; SignalsContent {} }
     Component { id: powerC; PowerContent {} }
+    Component { id: cheatC; CheatsheetContent {} }
     Component { id: lensC; LensContent {} }
     Component { id: atlasC; AtlasContent {} }
 

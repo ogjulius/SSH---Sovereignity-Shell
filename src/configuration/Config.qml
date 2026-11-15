@@ -30,7 +30,8 @@ Singleton {
     readonly property var clock: o.clock
     readonly property var weather: o.weather
     readonly property var commands: o.commands
-    readonly property var shortcuts: o.shortcuts
+    readonly property var keybinds: o.keybinds
+    readonly property var firstRun: o.firstRun
 
     property bool _backedUp: false
     property bool _selfWrite: false

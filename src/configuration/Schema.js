@@ -100,18 +100,34 @@ var tree = {
         terminal: { t: "argv", d: ["foot"] }
     },
     session: {
-        // In the Sovereignity Shell login sessions, bind the shortcuts below
+        // In the Sovereignity Shell login sessions, bind the keybinds below
         // automatically (keys your compositor config already binds are left alone).
         keybinds: { t: "bool", d: true }
     },
-    shortcuts: {
-        lens: { t: "str", d: "SUPER, SPACE" },
-        launcher: { t: "str", d: "SUPER, D" },
-        atlas: { t: "str", d: "SUPER, TAB" },
-        instruments: { t: "str", d: "SUPER, A" },
+    // Action -> key, Hyprland notation "MODS, KEY". Super is the only base
+    // modifier; Alt is reserved for Atlas travel. Defaults avoid every bind in
+    // stock Hyprland and Niri configs (see docs/KEYBINDS.md). An empty string
+    // leaves the action unbound. Mnemonics: A Atlas, O Orient (Lens),
+    // G Gauges (Instruments), N Notifications, Y Year (Almanac).
+    keybinds: {
+        launcher: { t: "str", d: "SUPER, SPACE" },
+        terminal: { t: "str", d: "SUPER, RETURN" },
+        atlas: { t: "str", d: "SUPER, A" },
+        lens: { t: "str", d: "SUPER, O" },
+        instruments: { t: "str", d: "SUPER, G" },
+        signals: { t: "str", d: "SUPER, N" },
+        almanac: { t: "str", d: "SUPER, Y" },
+        settings: { t: "str", d: "SUPER SHIFT, COMMA" },
         power: { t: "str", d: "SUPER SHIFT, ESCAPE" },
+        cheatsheet: { t: "str", d: "SUPER, F1" },
+        // Modifiers only: combined with the arrow keys.
         traverse: { t: "str", d: "SUPER ALT" },
         carry: { t: "str", d: "SUPER ALT SHIFT" }
+    },
+    firstRun: {
+        // The one-time hint in the Meridian pointing at the cheatsheet.
+        // Turned off when dismissed or when the cheatsheet is opened.
+        cheatsheetHint: { t: "bool", d: true }
     }
 };
 
@@ -157,11 +173,34 @@ function check(spec, v) {
     return "unknown option type";
 }
 
+// Renamed options, applied before validation: old section -> new section.
+// The old values are used (when the new section does not set them) and the
+// user is told to rename the section in their file.
+var RENAMED = { shortcuts: "keybinds" };
+function migrate(user, warnings) {
+    if (user === null || typeof user !== "object" || Array.isArray(user)) return user;
+    var out = null;
+    for (var old in RENAMED) {
+        if (!(old in user)) continue;
+        out = out || clone(user);
+        var nw = RENAMED[old], src = out[old];
+        if (src !== null && typeof src === "object" && !Array.isArray(src)) {
+            var dst = (out[nw] !== null && typeof out[nw] === "object" && !Array.isArray(out[nw])) ? out[nw] : {};
+            for (var k in src) if (!(k in dst)) dst[k] = src[k];
+            out[nw] = dst;
+        }
+        delete out[old];
+        warnings.push(old + ": renamed to \"" + nw + "\"; your values were used. Rename the section in your config file.");
+    }
+    return out || user;
+}
+
 // merge(user) -> { value, warnings[] }. Unknown keys are reported, not kept.
 function merge(user, node, path, warnings) {
     node = node || tree;
     path = path || "";
     warnings = warnings || [];
+    if (path === "") user = migrate(user, warnings);
     var out = {};
     var u = (user !== null && typeof user === "object" && !Array.isArray(user)) ? user : {};
     if (user !== undefined && u !== user && path !== "") warnings.push(path + ": expected a section, using defaults");

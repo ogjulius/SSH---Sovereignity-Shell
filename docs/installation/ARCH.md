@@ -158,7 +158,7 @@ spawn-at-startup "ssh-shell" "--daemon"
 ## 8. Keybinding setup
 
 SSH never edits your compositor configuration. It **generates** a keybind
-block from its `shortcuts` options, and you paste it in. With SSH running:
+block from its `keybinds` options, and you paste it in (SSH need not be running):
 
 ```sh
 ssh-shell keybinds hyprland       # Hyprland, classic hyprland.conf
@@ -169,9 +169,12 @@ Append the output to your compositor config, then reload: Hyprland reloads
 automatically on save (or `hyprctl reload`); Niri reloads automatically.
 
 You can also open **Settings → Keys** to change the keys and copy the block.
-Defaults: `Super+Space` Lens · `Super+Tab` Atlas · `Super+D` launcher ·
-`Super+A` Instruments · `Super+Shift+Esc` power · `Super+Alt+arrows` travel ·
-`Super+Alt+Shift+arrows` carry the focused window.
+Defaults: `Super+Space` launcher · `Super+Return` terminal · `Super+A` Atlas ·
+`Super+O` Lens · `Super+G` Instruments · `Super+N` Signals · `Super+Y` Almanac ·
+`Super+Shift+,` Settings · `Super+Shift+Esc` power · `Super+F1` cheatsheet ·
+`Super+Alt+arrows` travel · `Super+Alt+Shift+arrows` carry the focused window.
+The scheme and how to change keys: [KEYBINDS.md](../KEYBINDS.md). In the
+Sovereignity Shell login sessions these are bound for you.
 
 Test without keybinds: `ssh-shell lens toggle`.
 
@@ -203,7 +206,7 @@ sudo pacman -S --needed pipewire wireplumber pipewire-pulse
 `pipewire-pulse` is optional (for PulseAudio applications); SSH itself does not need it.
 
 Verify: scroll over the instrument cluster in the Meridian to change volume;
-an on-screen display appears. **Instruments** (`Super+A`) lists outputs and
+an on-screen display appears. **Instruments** (`Super+G`) lists outputs and
 inputs; right-click a gauge's device name to switch devices.
 
 ## 11. Network integration
@@ -231,7 +234,7 @@ sudo systemctl enable --now power-profiles-daemon
 Media controls use **MPRIS** and work with any player that exposes it
 (browsers, Spotify, mpv with the MPRIS plugin, …). No setup is needed.
 Verify: play something, open the **Almanac** (click the clock) or the **Lens**
-(`Super+Space`): title, artist, artwork and transport controls appear.
+(`Super+O`): title, artist, artwork and transport controls appear.
 
 ## 13. Updating SSH
 
