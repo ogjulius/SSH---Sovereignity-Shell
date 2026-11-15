@@ -10,7 +10,7 @@ revision=1
 _commit=@COMMIT@
 build_style=gnu-makefile
 make_install_args="PREFIX=/usr"
-depends="quickshell qt6-declarative qt6-svg qt6-wayland font-inter jetbrains-mono"
+depends="quickshell qt6-declarative qt6-svg qt6-wayland font-inter"
 short_desc="Spatial Quickshell desktop shell for Hyprland and Niri"
 maintainer="SSH contributors <ssh-shell@users.noreply.github.com>"
 license="GPL-3.0-or-later"

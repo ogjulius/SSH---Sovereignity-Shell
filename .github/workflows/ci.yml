@@ -42,9 +42,14 @@ jobs:
       - name: Install dependencies
         run: |
           pacman -Syu --noconfirm --needed git make python sudo quickshell qt6-declarative qt6-svg \
-            inter-font ttf-jetbrains-mono dbus sway grim foot libnotify mesa \
+            inter-font ttf-jetbrains-mono dbus sway grim foot libnotify mesa libcap \
             ${{ matrix.compositor }}
           useradd -m tester
+          # Unprivileged containers refuse to exec binaries with file
+          # capabilities (Arch ships sway with cap_sys_nice); strip them here.
+          for b in /usr/bin/sway /usr/bin/Hyprland /usr/bin/niri; do
+            [ -e "$b" ] && setcap -r "$b" 2>/dev/null || true
+          done
       - uses: actions/checkout@v4
       - name: Run SSH inside nested ${{ matrix.compositor }}
         run: |
