@@ -134,6 +134,7 @@ ShellRoot {
             return JSON.stringify({
                 compositor: Compositor.kind, connected: Compositor.connected,
                 workspaces: Compositor.workspaces.length, windows: Compositor.windows.length,
+                focus: { workspace: Compositor.focusedWorkspaceRef, window: Compositor.focusedWindowId, output: Compositor.focusedOutput },
                 surface: Surfaces.active, loaded: Object.keys(Surfaces.loaded),
                 atlas: { enabled: Atlas.enabled, collection: Atlas.current.name, cursor: Atlas.cursor, collections: Atlas.collections.length },
                 notifications: { serving: Notifs.serving, history: Notifs.history.length, popups: Notifs.popups.length, dnd: Notifs.dnd },

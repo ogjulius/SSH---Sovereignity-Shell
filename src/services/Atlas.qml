@@ -68,7 +68,13 @@ Singleton {
     function ensureRef(x, y, coll) {
         const c = coll || current;
         const k = M.key(x, y);
-        if (c.cells[k] && c.cells[k].ref) return { ref: c.cells[k].ref, created: false };
+        if (c.cells[k] && c.cells[k].ref) {
+            const old = c.cells[k].ref;
+            // Niri removes empty unnamed workspaces when you leave them, so an
+            // "id:" binding can go stale. Re-claim the cell as a named workspace.
+            const stale = !Compositor.caps.numericIds && old.indexOf("id:") === 0 && !Compositor.workspace(old);
+            if (!stale) return { ref: old, created: false };
+        }
         const ref = newRef(x, y, c);
         M.bind(state, c.id, x, y, ref);
         return { ref: ref, created: true };

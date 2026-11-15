@@ -37,7 +37,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        compositor: [hyprland, niri]
+        # Hyprland is not in the matrix: even nested, its Aquamarine backend
+        # needs a DRM render node (GBM), which GitHub-hosted runners lack
+        # ("CBackend::create() failed!"). Hyprland is verified on real hardware;
+        # see docs/installation/COMPATIBILITY.md.
+        compositor: [niri]
     steps:
       - name: Install dependencies
         run: |

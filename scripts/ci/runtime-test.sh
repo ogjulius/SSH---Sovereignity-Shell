@@ -42,7 +42,7 @@ if [ "${1:-}" = "--inside" ]; then
         if "$@" >>"$OUT/checks.log" 2>&1; then PASS=$((PASS+1)); echo "PASS  $name"
         else FAIL=$((FAIL+1)); echo "FAIL  $name"; fi
     }
-    st() { "${QS[@]}" ipc call shell status; }
+    st() { "${QS[@]}" ipc call shell status 2>/dev/null | grep '^{'; }  # JSON line only
     j()  { st | python3 -c "import json,sys;d=json.load(sys.stdin);print($1)"; }
     ipc() { "${QS[@]}" ipc call "$@"; }
 
@@ -100,7 +100,7 @@ COMP=$1; OUT=${2:-runtime-out}
 mkdir -p "$OUT"; OUT=$(cd "$OUT" && pwd)
 export XDG_RUNTIME_DIR=${XDG_RUNTIME_DIR:-/tmp/xdg-$(id -u)}
 mkdir -p -m 700 "$XDG_RUNTIME_DIR"
-export LIBGL_ALWAYS_SOFTWARE=1
+export LIBGL_ALWAYS_SOFTWARE=1 LANG=C.UTF-8 LC_ALL=C.UTF-8
 trap 'pkill -P $$ 2>/dev/null; sleep 0.5; pkill -9 -P $$ 2>/dev/null; true' EXIT
 
 printf 'output HEADLESS-1 resolution 1920x1080\ndefault_border none\n' > "$OUT/sway.conf"
