@@ -57,14 +57,21 @@ Item {
         windows = wins;
     }
 
-    Timer { id: coalesce; interval: 24; onTriggered: b.rebuild() }
+    Timer { id: coalesce; interval: 24; onTriggered: { titleCoalesce.stop(); b.rebuild(); } }
+    // Title changes can arrive many times per second (terminal spinners,
+    // browsers); they only need a cheap, slower refresh and no IPC round-trip.
+    Timer { id: titleCoalesce; interval: 400; onTriggered: b.rebuild() }
     Timer { id: geomCoalesce; interval: 60; onTriggered: Hyprland.refreshToplevels() }
 
     Connections {
         target: Hyprland
         function onRawEvent(event) {
             const n = event.name;
-            if (n === "openwindow" || n === "movewindow" || n === "movewindowv2" || n === "changefloatingmode" || n === "windowtitlev2")
+            if (n === "windowtitle" || n === "windowtitlev2") {
+                if (!coalesce.running && !titleCoalesce.running) titleCoalesce.start();
+                return;
+            }
+            if (n === "openwindow" || n === "movewindow" || n === "movewindowv2" || n === "changefloatingmode")
                 geomCoalesce.restart();
             coalesce.restart();
         }
