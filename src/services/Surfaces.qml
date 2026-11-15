@@ -43,5 +43,12 @@ Singleton {
         const l = Object.assign({}, loaded);
         delete l[name];
         loaded = l;
+        collect.restart();
     }
+
+    // A destroyed surface leaves its JS objects for the V4 collector, which
+    // otherwise runs only under allocation pressure. One deferred pass after
+    // the shell goes quiet keeps the steady-state heap close to idle
+    // (measured: see docs/PERFORMANCE.md).
+    Timer { id: collect; interval: 1500; onTriggered: if (s.active === "") gc() }
 }

@@ -136,7 +136,7 @@ ShellRoot {
                 workspaces: Compositor.workspaces.length, windows: Compositor.windows.length,
                 surface: Surfaces.active, loaded: Object.keys(Surfaces.loaded),
                 atlas: { enabled: Atlas.enabled, collection: Atlas.current.name, cursor: Atlas.cursor, collections: Atlas.collections.length },
-                notifications: { serving: Notifs.serving, history: Notifs.history.length, dnd: Notifs.dnd },
+                notifications: { serving: Notifs.serving, history: Notifs.history.length, popups: Notifs.popups.length, dnd: Notifs.dnd },
                 configWarnings: Config.warnings.length, configError: Config.loadError
             });
         }
