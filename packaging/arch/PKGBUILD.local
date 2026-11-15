@@ -1,0 +1,38 @@
+# Maintainer: SSH contributors
+# Package built by ./install.sh from the checkout it runs in (Arch Linux,
+# CachyOS, EndeavourOS). The installer places a tarball of the working tree
+# next to this file as ssh-shell-src.tar.gz and runs makepkg as your user.
+# For the AUR-style package that builds from git, see PKGBUILD.
+pkgname=ssh-shell
+pkgver=0.1.0.alpha
+pkgrel=1
+pkgdesc="SSH — Sovereignity Shell: a spatial Quickshell desktop shell for Hyprland and Niri"
+arch=('any')
+url="https://github.com/ogjulius/SSH---Sovereignity-Shell"
+license=('GPL-3.0-or-later')
+depends=('quickshell>=0.3' 'qt6-declarative' 'qt6-svg' 'inter-font' 'ttf-jetbrains-mono')
+makedepends=('make')
+optdepends=(
+    'hyprland: supported compositor'
+    'niri: supported compositor'
+    'pipewire: audio controls'
+    'wireplumber: PipeWire session manager'
+    'networkmanager: network status and Wi-Fi control'
+    'bluez: Bluetooth control'
+    'upower: battery information'
+    'power-profiles-daemon: power profile switching'
+    'brightnessctl: backlight control'
+)
+provides=('ssh-shell')
+conflicts=('ssh-shell-git')
+source=("ssh-shell-src.tar.gz")
+sha256sums=('SKIP')
+
+pkgver() {
+    sed -n 's/.*version: "\(.*\)".*/\1/p' "$srcdir/ssh-shell/src/configuration/Version.qml" | tr '-' '.'
+}
+
+package() {
+    cd "$srcdir/ssh-shell"
+    make install DESTDIR="$pkgdir" PREFIX=/usr
+}

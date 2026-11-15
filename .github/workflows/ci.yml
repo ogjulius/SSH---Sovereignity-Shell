@@ -17,11 +17,16 @@ jobs:
       - name: Install dependencies
         run: |
           pacman -Syu --noconfirm --needed git make python quickshell qt6-declarative qt6-svg \
-            inter-font ttf-jetbrains-mono dbus
+            inter-font ttf-jetbrains-mono dbus fish zsh dash desktop-file-utils
       - uses: actions/checkout@v4
       - name: Source validation
         run: |
-          for f in scripts/*.sh scripts/ci/*.sh bin/ssh-shell; do bash -n "$f" && echo "ok  $f"; done
+          for f in scripts/*.sh scripts/ci/*.sh installer/ssh-install.sh installer/lib/*.sh installer/backends/*.sh \
+                   data/completions/ssh-shell.bash; do bash -n "$f" && echo "ok  $f"; done
+          # POSIX sh entry points must not depend on bash.
+          for f in install.sh bin/ssh-shell bin/ssh-session; do dash -n "$f" && echo "ok  $f (dash)"; done
+          fish -n data/completions/ssh-shell.fish && echo "ok  fish completion"
+          zsh -n data/completions/_ssh-shell && echo "ok  zsh completion"
           for f in src/themes/presets/*.json; do python -m json.tool "$f" >/dev/null && echo "ok  $f"; done
           python scripts/check-links.py
       - name: Unit tests, Qt 6 qmllint, offscreen load test

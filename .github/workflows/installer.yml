@@ -1,0 +1,114 @@
+# Runs the real ./install.sh end to end in disposable containers, as a normal
+# user with passwordless sudo: install, verify, reinstall, a live test of the
+# installed "Sovereignity Shell (Niri)" session (nested in headless sway),
+# uninstall, verify. NixOS: the installer's declarative module is generated
+# and evaluated inside a NixOS configuration.
+name: Installer
+on:
+  push: { branches: [main] }
+  pull_request:
+  workflow_dispatch:
+permissions: { contents: read }
+
+jobs:
+  arch:
+    name: Arch Linux — install.sh end to end
+    runs-on: ubuntu-latest
+    container: archlinux:latest
+    steps:
+      - name: Base system (what a fresh install has) + test tools
+        run: |
+          pacman -Syu --noconfirm --needed sudo git base-devel libcap sway dbus mesa
+          useradd -m -s /bin/bash tester
+          echo 'tester ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/tester
+      - uses: actions/checkout@v4
+      - name: install.sh → session → uninstall
+        run: |
+          chown -R tester: .
+          sudo -u tester env -i HOME=/home/tester PATH=/usr/bin:/bin TERM=dumb \
+            ./scripts/ci/installer-e2e.sh e2e-arch session
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: { name: installer-arch, path: e2e-arch/, if-no-files-found: warn }
+
+  fedora:
+    name: Fedora — install.sh end to end
+    runs-on: ubuntu-latest
+    container: fedora:latest
+    steps:
+      - name: Base system + test tools
+        run: |
+          dnf -y install sudo git libcap sway dbus-daemon dbus-tools mesa-dri-drivers procps-ng findutils
+          useradd -m -s /bin/bash tester
+          echo 'tester ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/tester
+      - uses: actions/checkout@v4
+      - name: install.sh → session → uninstall
+        run: |
+          chown -R tester: .
+          sudo -u tester env -i HOME=/home/tester PATH=/usr/bin:/bin TERM=dumb \
+            ./scripts/ci/installer-e2e.sh e2e-fedora session
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: { name: installer-fedora, path: e2e-fedora/, if-no-files-found: warn }
+
+  void:
+    name: Void (unofficial) — install.sh end to end
+    runs-on: ubuntu-latest
+    container: ghcr.io/void-linux/void-glibc-full:latest
+    steps:
+      - name: Base system + test tools
+        run: |
+          xbps-install -Syu xbps && xbps-install -Syu
+          xbps-install -y sudo bash git libcap-progs sway dbus mesa-dri procps-ng findutils
+          useradd -m -s /bin/bash tester
+          echo 'tester ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/tester
+      - uses: actions/checkout@v4
+      - name: install.sh → session → uninstall
+        run: |
+          chown -R tester: .
+          sudo -u tester env -i HOME=/home/tester PATH=/usr/bin:/bin TERM=dumb \
+            ./scripts/ci/installer-e2e.sh e2e-void session
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: { name: installer-void, path: e2e-void/, if-no-files-found: warn }
+
+  nixos:
+    name: NixOS — installer module + session registration
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: cachix/install-nix-action@v30
+        with: { extra_nix_config: "experimental-features = nix-command flakes" }
+      - name: Installer on NixOS writes a declarative module
+        run: |
+          printf 'ID=nixos\nPRETTY_NAME="NixOS (CI)"\n' > /tmp/os-release
+          SSH_OS_RELEASE=/tmp/os-release ./install.sh --yes --plain --compositor=niri --terminal=foot | tee /tmp/install.log
+          grep -q "INSTALLATION COMPLETE" /tmp/install.log
+          cat ~/.config/ssh-shell/nixos/ssh-shell.nix
+      - name: The generated module evaluates in a NixOS system and registers the session
+        run: |
+          cat > /tmp/eval.nix <<EOF
+          let
+            flake = builtins.getFlake "path:$PWD";
+            sys = flake.inputs.nixpkgs.lib.nixosSystem {
+              system = "x86_64-linux";
+              modules = [
+                flake.nixosModules.default
+                $HOME/.config/ssh-shell/nixos/ssh-shell.nix
+                { boot.loader.grub.enable = false; fileSystems."/" = { device = "none"; fsType = "tmpfs"; }; system.stateVersion = "25.05"; }
+              ];
+            };
+          in {
+            sessions = sys.config.services.displayManager.sessionData.sessionNames;
+            niri = sys.config.programs.niri.enable;
+          }
+          EOF
+          nix eval --impure --json --file /tmp/eval.nix | tee /tmp/eval.json
+          grep -q '"ssh-niri"' /tmp/eval.json
+          grep -q '"niri":true' /tmp/eval.json
+      - name: Package ships both session files with store paths
+        run: |
+          nix build .#default
+          grep -q "^Exec=/nix/store/.*/bin/ssh-session niri$" result/share/wayland-sessions/ssh-niri.desktop
+          grep -q "^Exec=/nix/store/.*/bin/ssh-session hyprland$" result/share/wayland-sessions/ssh-hyprland.desktop
+          result/bin/ssh-session --check niri || true

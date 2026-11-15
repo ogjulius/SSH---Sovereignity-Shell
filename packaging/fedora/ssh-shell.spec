@@ -45,11 +45,19 @@ rm -rf %{buildroot}%{_datadir}/licenses/ssh-shell
 %files
 %license LICENSE
 %{_bindir}/ssh-shell
+%{_bindir}/ssh-session
+%{_datadir}/wayland-sessions/ssh-hyprland.desktop
+%{_datadir}/wayland-sessions/ssh-niri.desktop
+%{_datadir}/bash-completion/completions/ssh-shell
+%{_datadir}/fish/vendor_completions.d/ssh-shell.fish
+%{_datadir}/zsh/site-functions/_ssh-shell
 %{_datadir}/ssh-shell/
 %{_docdir}/ssh-shell/
 %{_datadir}/icons/hicolor/scalable/apps/ssh-shell.svg
 %{_datadir}/icons/hicolor/256x256/apps/ssh-shell.png
 
 %changelog
+* Sun Nov 15 2026 SSH contributors - 0.1.0~alpha-1
+- Login sessions for Hyprland and Niri, ssh-session launcher, completions.
 * Sun Nov 15 2026 SSH contributors - 0.1.0~alpha-1
 - First packaged pre-release.

@@ -23,7 +23,7 @@
             self.nixosModules.default
             ({ ... }: {
               programs.ssh-shell.enable = true;
-              programs.${compositor}.enable = true;
+              programs.ssh-shell.${compositor}.enable = true;
               boot.loader.grub.enable = false;
               fileSystems."/" = { device = "none"; fsType = "tmpfs"; };
               system.stateVersion = "25.05";

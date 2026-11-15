@@ -1,9 +1,10 @@
 # Template file for 'ssh-shell' — UNOFFICIAL community template.
 #
-# Quickshell is not packaged in the official Void repositories; build it
-# first (see docs/installation/VOID.md) or remove it from depends and install
-# it from source. Copy this directory into void-packages/srcpkgs/ and run
+# Every dependency, including Quickshell, is in Void's official repositories.
+# Copy this directory into void-packages/srcpkgs/ and run
 #   ./xbps-src pkg ssh-shell
+# (./install.sh on Void builds an equivalent local XBPS package directly
+# from the checkout instead.)
 pkgname=ssh-shell
 version=0.1.0alpha
 revision=1
