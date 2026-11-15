@@ -72,14 +72,14 @@ FocusScope {
         Flow {
             Layout.fillWidth: true
             visible: Config.launcher.showCategories
-            spacing: Theme.s1
+            spacing: 0
             Repeater {
                 model: Apps.categories
                 Pressable {
                     id: chip
                     required property var modelData
                     readonly property bool on: l.category === modelData.key
-                    width: chipLabel.implicitWidth + Theme.s4 + Theme.s2
+                    width: chipLabel.implicitWidth + Theme.s4
                     height: 22
                     highlighted: on
                     activeFocusOnTab: false

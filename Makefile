@@ -25,8 +25,8 @@ install:
 	install -m644 README.md CHANGELOG.md $(DOC)/
 	cp -r docs $(DOC)/
 	install -m644 LICENSE $(LIC)/LICENSE
-	install -m644 assets/brand/ssh-icon.svg $(ICONS)/scalable/apps/ssh-shell.svg
-	install -m644 assets/brand/ssh-icon-256.png $(ICONS)/256x256/apps/ssh-shell.png
+	install -m644 assets/branding/ssh-icon.svg $(ICONS)/scalable/apps/ssh-shell.svg
+	install -m644 assets/branding/ssh-icon-256.png $(ICONS)/256x256/apps/ssh-shell.png
 
 uninstall:
 	rm -rf $(SHARE) $(DOC) $(LIC)

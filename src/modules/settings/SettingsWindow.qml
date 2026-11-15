@@ -89,7 +89,8 @@ FloatingWindow {
             ColumnLayout {
                 id: body
                 x: Theme.s7; y: Theme.s7
-                width: flick.width - Theme.s7 * 2
+                // Keep labels and controls close on wide (tiled) windows.
+                width: Math.min(flick.width - Theme.s7 * 2, 860)
                 spacing: Theme.s5
                 ColumnLayout {
                     spacing: 0

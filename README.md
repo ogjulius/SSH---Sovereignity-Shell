@@ -1,4 +1,4 @@
-<p align="center"><img src="assets/brand/ssh-banner.png" alt="SSH — Sovereignity Shell" width="100%"></p>
+<p align="center"><img src="assets/branding/ssh-banner.png" alt="SSH — Sovereignity Shell" width="100%"></p>
 
 <p align="center"><b>A brand new feeling of your Hyprland/Niri powered distribution.</b></p>
 

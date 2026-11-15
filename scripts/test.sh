@@ -35,7 +35,10 @@ tmp=$(mktemp -d)
 trap 'rm -rf "$tmp"' EXIT
 log=$(QT_QPA_PLATFORM=offscreen SSH_SHELL_NO_NOTIFICATIONS=1 SSH_SHELL_CONFIG="$tmp/none.json" \
       SSH_RENDER_OUT="$tmp" timeout 90 qs -p src/dev-render.qml 2>&1 | strip)
-errs=$(echo "$log" | grep -E "ERROR|TypeError|ReferenceError|is not defined|Cannot read property" | grep -v "Tray.qml" || true)
+# Only QML/JS errors fail the run. Missing system services (NetworkManager,
+# PipeWire, BlueZ in a container) are logged by Quickshell and are expected:
+# SSH must degrade gracefully without them, which this run also proves.
+errs=$(echo "$log" | grep -E "TypeError|ReferenceError|is not defined|Cannot read property|Cannot assign|unavailable|Failed to load configuration|is not a type|Expected token" | grep -v "Tray.qml" || true)
 n=$(ls "$tmp"/*.png 2>/dev/null | wc -l)
 echo "  rendered $n surface(s)"
 if [ -n "$errs" ]; then echo "$errs" | sort | uniq -c; fail=1; fi

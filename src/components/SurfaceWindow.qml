@@ -68,7 +68,10 @@ PanelWindow {
             transform: Translate { y: (1 - win.progress) * (win.placement === "anchor" ? -6 : 8) }
             x: {
                 if (!item) return 0;
-                if (win.placement === "anchor" && win.anchorRect) {
+                if (win.placement === "anchor") {
+                    // Without a bar anchor (opened by keybind/IPC), sit at the right edge
+                    // where the Meridian's instrument cluster lives.
+                    if (!win.anchorRect) return host.width - item.width - Theme.s3;
                     const want = win.anchorRect.x + win.anchorRect.w / 2 - item.width / 2;
                     return Math.max(Theme.s3, Math.min(want, host.width - item.width - Theme.s3));
                 }
@@ -84,6 +87,19 @@ PanelWindow {
             }
             width: win.placement === "fill" ? host.width : (item ? item.implicitWidth : 0)
             height: win.placement === "fill" ? host.height : (item ? item.implicitHeight : 0)
+            // Report the content rectangle, relative to this surface's window, for
+            // tooling such as scripts/capture-screenshots.sh (`ssh-shell shell rect`).
+            // The window's own screen position comes from the compositor.
+            function publishRect() {
+                if (!win.shown || !item) return;
+                const p = mapToItem(null, 0, 0);
+                Surfaces.contentRect = { x: Math.round(p.x), y: Math.round(p.y), w: Math.round(width), h: Math.round(height) };
+            }
+            onXChanged: publishRect()
+            onYChanged: publishRect()
+            onWidthChanged: publishRect()
+            onHeightChanged: publishRect()
+            onLoaded: publishRect()
             // Swallow clicks inside content so they don't close the surface.
             MouseArea { anchors.fill: parent; z: -1; onClicked: {} }
         }

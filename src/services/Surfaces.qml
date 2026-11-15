@@ -14,6 +14,7 @@ Singleton {
     property var loaded: ({})           // name -> true while instantiated
     property string screenName: ""      // output the surface opens on
     property var anchorRect: null       // optional {x, y, w} hint from the bar
+    property var contentRect: null      // {x, y, w, h} of the open surface's content (tooling)
 
     function targetScreen() {
         const want = Compositor.focusedOutput;

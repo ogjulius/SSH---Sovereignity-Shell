@@ -141,5 +141,11 @@ ShellRoot {
             });
         }
         function open(surface: string): void { Surfaces.open(surface); }
+        // Content geometry of the open surface, relative to its window, as
+        // "x,y WxH". Add the window's position (hyprctl layers / niri msg) for screen coordinates.
+        function rect(): string {
+            const r = Surfaces.contentRect;
+            return Surfaces.active && r ? r.x + "," + r.y + " " + r.w + "x" + r.h : "";
+        }
     }
 }

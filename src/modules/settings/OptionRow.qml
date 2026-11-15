@@ -6,17 +6,19 @@ import qs.components
 import "../../configuration/Schema.js" as Schema
 
 // A schema-driven option: picks its control from the option's type.
-RowLayout {
+Item {
     id: row
     required property var opt
     readonly property var spec: Schema.specAt(opt.path)
     readonly property var value: { Config.o; return Config.get(opt.path); }
     readonly property bool isDefault: spec ? JSON.stringify(spec.d) === JSON.stringify(value) : true
-    spacing: Theme.s5
+    // Anchored (not RowLayout) so the control column is identical on every row.
+    implicitHeight: Math.max(labels.implicitHeight, control.implicitHeight, 26)
+    implicitWidth: 640
 
     ColumnLayout {
-        Layout.fillWidth: true
-        Layout.preferredWidth: 260
+        id: labels
+        anchors { left: parent.left; right: control.left; rightMargin: Theme.s6; verticalCenter: parent.verticalCenter }
         spacing: 1
         RowLayout {
             spacing: Theme.s2
@@ -27,11 +29,15 @@ RowLayout {
     }
 
     Loader {
-        Layout.preferredWidth: 300
-        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+        id: control
+        width: 300
+        anchors { right: reset.left; rightMargin: Theme.s3; verticalCenter: parent.verticalCenter }
         sourceComponent: !row.spec ? null : ({ bool: toggleC, enum: choiceC, num: numC, int: numC, str: textC, color: textC, numOrNull: textC, argv: textC, strlist: textC })[row.spec.t]
+        onLoaded: item.width = Qt.binding(() => control.width)
     }
     IconButton {
+        id: reset
+        anchors { right: parent.right; verticalCenter: parent.verticalCenter }
         icon: "restart"; iconSize: 12
         opacity: row.isDefault ? 0 : 1
         enabled_: !row.isDefault
