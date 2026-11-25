@@ -35,12 +35,13 @@ in Instruments, or the Lens command "Settings"). Settings writes
 |---|---|---|---|
 | **appearance** | | | |
 | `mode` | `dark` `light` `auto` | `dark` | Obsidian / Vellum / by hour |
+| `appIcons` | bool | **false** | opt-in desktop icons; off keeps Launcher, Lens and Atlas from loading icon-theme assets |
 | `accent` | `argent` `brass` `ember` `verdigris` `cobalt` `oxblood` `custom` | `argent` | |
 | `customAccent` | `#rrggbb` | `#c9bfa9` | used when accent is `custom` |
 | `opacity` | 0.5–1 | 0.94 | plate translucency (pair with compositor blur) |
 | `animationScale` | 0–2 | 1 | 0 disables animation |
 | `fontUi` / `fontDisplay` / `fontMono` | text | Inter / Inter Display / JetBrains Mono | |
-| `fontScale` | 0.8–1.4 | 1 | |
+| `fontScale` | 0.8–1.4 | 1.08 | slightly larger default for at-a-glance legibility |
 | `chamfer` | 0–2 | 1 | cut-corner size; 0 = square |
 | `autoLightFrom` / `autoDarkFrom` | 0–23 | 7 / 19 | for `mode: auto` |
 | **meridian** | | | |

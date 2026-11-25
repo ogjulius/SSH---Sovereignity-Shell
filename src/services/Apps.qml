@@ -74,7 +74,7 @@ Singleton {
     // appId -> icon path, cached (heuristicLookup is not free).
     property var _iconCache: ({})
     function iconFor(appId) {
-        if (!appId) return "";
+        if (!Config.appearance.appIcons || !appId) return "";
         const hit = _iconCache[appId];
         if (hit !== undefined) return hit;
         const e = DesktopEntries.heuristicLookup(appId);
@@ -85,7 +85,19 @@ Singleton {
     // Themed icon path with an explicit fallback. (Quickshell 0.3.2's
     // iconPath(name, fallback) form emits a query the provider ignores.)
     function iconPath(name) {
+        if (!Config.appearance.appIcons) return "";
         return (name ? Quickshell.iconPath(name, true) : "") || Quickshell.iconPath("application-x-executable", true) || "";
+    }
+    function glyphFor(entry) {
+        const cats = entry && entry.categories ? entry.categories : [];
+        if (cats.indexOf("Development") >= 0) return "terminal";
+        if (cats.indexOf("Graphics") >= 0) return "swatch";
+        if (cats.indexOf("Network") >= 0) return "wifi";
+        if (cats.indexOf("AudioVideo") >= 0) return "play";
+        if (cats.indexOf("Office") >= 0) return "calendar";
+        if (cats.indexOf("Game") >= 0) return "target";
+        if (cats.indexOf("System") >= 0) return "cpu";
+        return "window";
     }
     function nameFor(appId) {
         const e = appId ? DesktopEntries.heuristicLookup(appId) : null;

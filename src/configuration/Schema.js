@@ -18,6 +18,7 @@ var tree = {
     version: { t: "int", d: 1, min: 1, max: 1 },
     appearance: {
         mode: { t: "enum", d: "dark", v: ["dark", "light", "auto"] },
+        appIcons: { t: "bool", d: false },
         accent: { t: "enum", d: "argent", v: ACCENTS },
         customAccent: { t: "color", d: "#c9bfa9" },
         opacity: { t: "num", d: 0.94, min: 0.5, max: 1 },
@@ -25,7 +26,7 @@ var tree = {
         fontUi: { t: "str", d: "Inter" },
         fontDisplay: { t: "str", d: "Inter Display" },
         fontMono: { t: "str", d: "JetBrains Mono" },
-        fontScale: { t: "num", d: 1, min: 0.8, max: 1.4 },
+        fontScale: { t: "num", d: 1.08, min: 0.8, max: 1.4 },
         chamfer: { t: "num", d: 1, min: 0, max: 2 },
         autoLightFrom: { t: "int", d: 7, min: 0, max: 23 },
         autoDarkFrom: { t: "int", d: 19, min: 0, max: 23 }

@@ -9,6 +9,28 @@ fatal).
 
 First working pre-release. Not yet published.
 
+### Changed (interface pass)
+- **Application icons are opt-in** (`appearance.appIcons`, default `false`).
+  Qt's icon-theme loader and SVG engine are the single largest allocation in
+  the shell; with icons off the Launcher, Lens and Atlas draw SSH's own
+  glyphs instead. Measured on one machine: idle **352 → 282 MiB RSS**
+  (225 → 161 MiB PSS), first surface open **+101 → +71 MiB**, peak
+  **485 → 385 MiB**, startup **1.62 → 1.16 s**.
+- **Launcher** rebuilt as a two-pane finder: a recycling `ListView` (was a
+  full `Repeater`, so long result sets no longer instantiate every row), a
+  category-glyph fallback per result, a quiet inspector for the selected app,
+  an explicit empty state, a scroll indicator and a keyboard legend. It now
+  opens centred rather than high on the screen.
+- **Meridian** groups its three zones with hairlines, and the active row stop
+  is marked by an accent plate plus its underline instead of the underline
+  alone.
+- **Settings** numeric rows show real units (`94%`, `1.08×`, `19 h`, `5500 ms`)
+  instead of a bare `1.00`, and rows that depend on another option (schedule
+  hours, preview budget, OSD time, weather fields) appear only when they apply.
+- **Default text scale** raised to `1.08`, and persistent guidance in the Lens
+  (status line, keyboard legend, empty states, neighbour labels) moved from the
+  faintest tone to the dim tone.
+
 ### Added
 - **`./install.sh`:** clone-and-install for Arch, CachyOS, EndeavourOS,
   Fedora, NixOS (declarative module) and Void (unofficial). Interactive

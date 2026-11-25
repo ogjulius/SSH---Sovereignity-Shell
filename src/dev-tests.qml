@@ -30,9 +30,15 @@ ShellRoot {
     function testSchema() {
         const d = Schema.defaults();
         eq("defaults: meridian height", d.meridian.height, 34);
+        eq("defaults: readable default text scale", d.appearance.fontScale, 1.08);
+        eq("defaults: app icons disabled for lean rendering", d.appearance.appIcons, false);
         eq("defaults: lock argv", d.commands.lock, ["loginctl", "lock-session"]);
 
-        let r = Schema.merge({});
+        let r = Schema.merge({ appearance: { appIcons: true } });
+        eq("app icons can be enabled", r.value.appearance.appIcons, true);
+        eq("app icon override has no warning", r.warnings, []);
+
+        r = Schema.merge({});
         eq("merge empty: no warnings", r.warnings, []);
         eq("merge empty: equals defaults", r.value, d);
 

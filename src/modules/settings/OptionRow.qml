@@ -12,6 +12,14 @@ Item {
     readonly property var spec: Schema.specAt(opt.path)
     readonly property var value: { Config.o; return Config.get(opt.path); }
     readonly property bool isDefault: spec ? JSON.stringify(spec.d) === JSON.stringify(value) : true
+    // Numeric readout with its unit, so a slider never shows a bare "1.00".
+    readonly property string unit: row.opt.unit || ""
+    readonly property string shownValue: {
+        if (!spec || value === undefined || value === null) return "";
+        if (unit === "%") return Math.round(value * 100) + "%";
+        if (spec.t === "int") return value + unit;
+        return Number(value).toFixed(2) + unit;
+    }
     // Anchored (not RowLayout) so the control column is identical on every row.
     implicitHeight: Math.max(labels.implicitHeight, control.implicitHeight, 26)
     implicitWidth: 640
@@ -81,7 +89,7 @@ Item {
                     Config.set(row.opt.path, n);
                 }
             }
-            Label { role: "data"; text: row.spec.t === "int" ? row.value : Number(row.value).toFixed(2); Layout.preferredWidth: 44; horizontalAlignment: Text.AlignRight; dim: true }
+            Label { role: "data"; text: row.shownValue; Layout.preferredWidth: 56; horizontalAlignment: Text.AlignRight; dim: true }
         }
     }
     Component { id: textC

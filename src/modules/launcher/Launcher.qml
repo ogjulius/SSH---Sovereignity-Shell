@@ -3,7 +3,7 @@ import qs.components
 
 SurfaceWindow {
     name: "launcher"
-    placement: "top"
+    placement: "center"
     dim: 0.25
     content: Component { LauncherContent {} }
 }

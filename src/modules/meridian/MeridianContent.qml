@@ -48,9 +48,11 @@ Item {
         CellRow { visible: Config.meridian.showRow && Atlas.enabled; Layout.fillHeight: true }
 
         // ── Focus ─────────────────────────────────────────────────────
+        Rule { vertical: true; Layout.fillHeight: true; Layout.topMargin: 8; Layout.bottomMargin: 8 }
         Item { Layout.fillWidth: true; Layout.fillHeight: true
             FocusTitle { anchors.centerIn: parent; width: Math.min(implicitWidth, parent.width); visible: Config.meridian.showTitle }
         }
+        Rule { vertical: true; Layout.fillHeight: true; Layout.topMargin: 8; Layout.bottomMargin: 8 }
 
         // ── Instruments ───────────────────────────────────────────────
         Tray { visible: Config.meridian.showTray; Layout.fillHeight: true; barWindow: bar.barWindow }

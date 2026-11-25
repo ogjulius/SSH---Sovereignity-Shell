@@ -103,6 +103,15 @@ FloatingWindow {
                     Loader {
                         required property var modelData
                         Layout.fillWidth: true
+                        // Options can declare a dependency; a row that does not
+                        // apply yet is not shown at all.
+                        readonly property bool applies: {
+                            Config.o;
+                            const w = modelData.when;
+                            return !w || Config.get(w.path) === w.is;
+                        }
+                        active: applies
+                        visible: applies
                         sourceComponent: modelData.special ? ({ accent: accentC, collections: collectionsC, keys: keysC, themes: themesC, about: aboutC, monitors: monitorsC })[modelData.special] : optionC
                         property var opt: modelData
                     }

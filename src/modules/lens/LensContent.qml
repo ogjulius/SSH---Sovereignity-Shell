@@ -147,7 +147,7 @@ FocusScope {
                 visible: lens.count === 0
                 Layout.fillWidth: true
                 horizontalAlignment: Text.AlignHCenter
-                role: "caption"; faint: true
+                role: "caption"; dim: true
                 text: lens.query.length ? "No intent matches “" + intent.text + "”." : "No windows here. Type to launch, or travel with Alt + arrows."
             }
         }
@@ -170,7 +170,7 @@ FocusScope {
         anchors { left: parent.left; top: parent.top; margins: Theme.s7 }
         width: 340
         spacing: Theme.s3
-        Label { role: "micro"; faint: true; text: Time.longDate }
+        Label { role: "micro"; dim: true; text: Time.longDate }
         Label { role: "display"; text: Time.time }
         MediaStrip { compact: true; Layout.fillWidth: true; visible: Config.lens.showMedia && Media.active }
     }
@@ -184,7 +184,7 @@ FocusScope {
             model: Notifs.history.slice(0, 3)
             NotificationCard { required property var modelData; record: modelData; Layout.fillWidth: true }
         }
-        Label { visible: Notifs.history.length === 0; role: "caption"; faint: true; text: "All quiet." }
+        Label { visible: Notifs.history.length === 0; role: "caption"; dim: true; text: "All quiet." }
     }
     ColumnLayout { // SE: instruments
         visible: Config.lens.showInstruments
@@ -217,14 +217,14 @@ FocusScope {
     ColumnLayout { // SW: position legend
         anchors { left: parent.left; bottom: parent.bottom; margins: Theme.s7 }
         spacing: Theme.s2
-        Label { role: "micro"; faint: true; text: Compositor.displayName + (Power.hasBattery ? " · " + Fmt.percent(Power.level) + " " + Power.stateLabel.toLowerCase() : "") }
+        Label { role: "micro"; dim: true; text: Compositor.displayName + (Power.hasBattery ? " · " + Fmt.percent(Power.level) + " " + Power.stateLabel.toLowerCase() : "") }
         Row {
             spacing: Theme.s4
             Repeater {
                 model: [["type", "intent"], ["↑↓ ↵", "choose"], ["alt + arrows", "travel"], ["alt shift + arrows", "carry window"], ["esc", "close"]]
                 Row { required property var modelData; spacing: Theme.s2
                     Label { role: "micro"; text: modelData[0] }
-                    Label { role: "micro"; faint: true; text: modelData[1] } }
+                    Label { role: "micro"; dim: true; text: modelData[1] } }
             }
         }
     }

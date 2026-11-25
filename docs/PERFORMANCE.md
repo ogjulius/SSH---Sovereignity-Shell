@@ -75,6 +75,9 @@ Mesa drivers (not yet measured).
 
 ## What keeps SSH cheap
 
+- Application icons are off by default (`appearance.appIcons`): Qt's
+  icon-theme loader and SVG icon engine are the largest single allocation the
+  shell can make, so SSH draws its own glyphs unless you ask for real icons.
 - Only the Meridian is resident; every surface is created on open and destroyed
   after its exit animation, followed by a deferred GC.
 - No polling while idle: compositor, audio, network, Bluetooth, battery and

@@ -30,7 +30,7 @@ Row {
             readonly property int count: Atlas.windowCount(modelData, Atlas.cursor.y)
             readonly property var ws: Atlas.workspaceAt(modelData, Atlas.cursor.y)
             width: 26; height: rowView.height
-            showWash: !here
+            highlighted: here
             onClicked: Atlas.goto(modelData, Atlas.cursor.y)
             Label {
                 anchors.centerIn: parent

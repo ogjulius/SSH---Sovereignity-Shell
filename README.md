@@ -97,7 +97,7 @@ close. **~0.03 % idle CPU** and **+38 MiB** over a bare Quickshell bar —
 </tr>
 </table>
 
-Also included: a **launcher** with frecency · **Instruments** (Wi-Fi,
+Also included: a **launcher** with frecency, a selected-app inspector and app icons disabled by default for leaner rendering (opt in from Appearance) · **Instruments** (Wi-Fi,
 Bluetooth, audio devices, microphone, brightness, power profiles, battery) ·
 the **Almanac** (calendar with ISO weeks, keyless weather, load meters, media) ·
 **Signals** (notification daemon with actions, history and quiet mode) · OSD ·

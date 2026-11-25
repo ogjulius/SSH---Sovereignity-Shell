@@ -38,7 +38,7 @@ ShellRoot {
 
     readonly property var specs: ({
         meridian: { comp: null, place: "none", dim: 0 },
-        launcher: { comp: launcherC, place: "top", dim: 0.25 },
+        launcher: { comp: launcherC, place: "center", dim: 0.25 },
         instruments: { comp: instrumentsC, place: "anchor-right", dim: 0 },
         almanac: { comp: almanacC, place: "anchor-clock", dim: 0 },
         signals: { comp: signalsC, place: "anchor-right", dim: 0 },
