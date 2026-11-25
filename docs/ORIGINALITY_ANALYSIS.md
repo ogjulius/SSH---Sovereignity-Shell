@@ -20,7 +20,7 @@ departs from the existing Quickshell ecosystem.
 
 | Pattern | Typical form | SSH's position |
 |---|---|---|
-| Bar | Floating, fully rounded pill or islands | Island by default, but carrying a coordinate readout and row stops; a flush ruler-tick strip stays available (`meridian.style`) |
+| Bar | Floating, fully rounded pill or islands | Pills by default, but each carries survey content — coordinate readout, map row, instrument cluster; island and flush ruler-tick strips stay available (`meridian.style`) |
 | Workspaces | Numbered dots / pills, 1–10 | Cells on an unbounded 2D map in named collections; numbers survive as row 1 |
 | Dashboard | Grid of rounded cards | Compass layout around *where you are* (Lens); ledger-style Almanac |
 | Shape language | Large uniform corner radius, Material You tones | Moderate radii or chamfers (`appearance.shape`), hairlines, warm metal accents, no wallpaper-derived tones |

@@ -15,9 +15,11 @@ First working pre-release. Not yet published.
   `Plate` draws the rounded reading as a plain rectangle, so the default shape
   needs no `QtQuick.Shapes` node. Rounded surfaces can carry a soft top-edge
   light (`appearance.shine`).
-- **The Meridian floats** (`meridian.style`, default `island`): inset from the
-  screen edges, rounded, with the ruler-tick edge reserved for `flush`
-  (`meridian.showTicks` therefore defaults to `false`).
+- **The Meridian floats** (`meridian.style`, default `pills`): each zone —
+  position, focused window, instruments — carries its own plate, separated by
+  the backdrop. `island` puts them all back on one floating plate and `flush`
+  restores the full-width strip, which is the only style that draws the
+  ruler-tick edge (`meridian.showTicks` therefore defaults to `false`).
 - Default plate opacity 0.94 → 0.90, so a compositor blur rule reads as glass.
 - **Application icons are opt-in** (`appearance.appIcons`, default `false`).
   Qt's icon-theme loader and SVG engine are the single largest allocation in

@@ -4,8 +4,9 @@ import Quickshell.Wayland
 import qs.configuration
 import qs.themes
 
-// The Meridian: SSH's bar. Two readings, from `meridian.style`:
-//   island — a floating strip, inset from the screen edges
+// The Meridian: SSH's bar. Three readings, from `meridian.style`:
+//   pills  — a plate per zone, separated by the backdrop
+//   island — one floating strip, inset from the screen edges
 //   flush  — a full-width instrument strip with the ruler-tick edge
 // Left: position (sigil, collection, coordinate, minimap, row).
 // Centre: the focused window. Right: instruments, signals, time.
@@ -15,9 +16,9 @@ PanelWindow {
     screen: modelData
 
     readonly property bool top: Config.meridian.position === "top"
-    readonly property bool island: Config.meridian.style === "island"
-    // The gap an island leaves to the screen edges; flush keeps none.
-    readonly property int gap: island ? Math.max(4, Theme.gap) : 0
+    // Island and pills float; flush fills the screen edge.
+    readonly property bool floats: Config.meridian.style !== "flush"
+    readonly property int gap: floats ? Math.max(4, Theme.gap) : 0
 
     anchors { left: true; right: true; top: win.top; bottom: !win.top }
     margins { left: win.gap; right: win.gap }
@@ -38,6 +39,5 @@ PanelWindow {
         }
         screen: win.screen
         barWindow: win
-        island: win.island
     }
 }

@@ -35,7 +35,7 @@ var tree = {
     },
     meridian: {
         position: { t: "enum", d: "top", v: ["top", "bottom"] },
-        style: { t: "enum", d: "island", v: ["island", "flush"] },
+        style: { t: "enum", d: "pills", v: ["pills", "island", "flush"] },
         height: { t: "int", d: 34, min: 26, max: 52 },
         monitors: { t: "strlist", d: [] },
         showTicks: { t: "bool", d: false },

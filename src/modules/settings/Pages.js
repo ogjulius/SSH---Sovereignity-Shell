@@ -26,7 +26,7 @@ var pages = [
     ]},
     { key: "meridian", title: "Meridian", glyph: "minus", items: [
         { path: "meridian.position", label: "Edge" },
-        { path: "meridian.style", label: "Style", help: "An island floats inset from the screen edges; flush fills the edge and can show the ruler ticks.", labels: { island: "Island", flush: "Flush" } },
+        { path: "meridian.style", label: "Style", help: "Pills give each zone its own island; island carries them all on one plate; flush fills the screen edge and can show the ruler ticks.", labels: { pills: "Pills", island: "Island", flush: "Flush" } },
         { path: "meridian.height", label: "Height", unit: " px" },
         { path: "meridian.showTicks", label: "Ruler ticks", when: { path: "meridian.style", is: "flush" } },
         { path: "meridian.showMinimap", label: "Minimap" },

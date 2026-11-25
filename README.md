@@ -65,9 +65,9 @@ windows, named places and commands at once.
 <td valign="top">
 
 ### Meridian
-A floating island with your coordinate, a minimap of the neighbourhood and the
-stops on your current row — or a flush strip with the ruler-tick edge, if you
-prefer it (`meridian.style`).
+A row of floating pills — your coordinate with a minimap of the neighbourhood
+and the stops on your current row, the focused window, then the instruments —
+or one island, or a flush strip with the ruler-tick edge (`meridian.style`).
 
 </td>
 <td valign="top">

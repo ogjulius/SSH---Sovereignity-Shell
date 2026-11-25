@@ -48,7 +48,7 @@ in Instruments, or the Lens command "Settings"). Settings writes
 | `autoLightFrom` / `autoDarkFrom` | 0–23 | 7 / 19 | for `mode: auto` |
 | **meridian** | | | |
 | `position` | `top` `bottom` | `top` | |
-| `style` | `island` `flush` | `island` | island floats inset from the edges; flush fills the screen edge |
+| `style` | `pills` `island` `flush` | `pills` | pills: a plate per zone; island: one floating plate; flush: fills the screen edge |
 | `height` | 26–52 | 34 | |
 | `monitors` | list of output names | `[]` (all) | |
 | `showMinimap` `showRow` `showTitle` `showTray` | bool | true | |

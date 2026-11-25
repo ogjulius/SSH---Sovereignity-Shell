@@ -129,7 +129,7 @@ ShellRoot {
                 visible: !!root.specs[root.current] && root.specs[root.current].place !== "fill"
                 // Mirror what Meridian.qml's window does for an island: inset
                 // from the screen edges by the shape gap.
-                readonly property int inset: Config.meridian.style === "island" ? Math.max(4, Theme.gap) : 0
+                readonly property int inset: Config.meridian.style !== "flush" ? Math.max(4, Theme.gap) : 0
                 anchors { left: parent.left; right: parent.right; top: parent.top; leftMargin: inset; rightMargin: inset; topMargin: inset }
                 height: Config.meridian.height
             }
