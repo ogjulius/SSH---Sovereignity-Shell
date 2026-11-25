@@ -22,18 +22,25 @@ Pressable {
         Item {
             Layout.preferredWidth: 22; Layout.preferredHeight: 22
             visible: r.iconSource.length > 0 || r.glyph.length > 0
-            IconImage {
+            // Only the node that will actually draw is instantiated: a themed
+            // icon image, or an SSH glyph, never both.
+            Loader {
                 anchors.fill: parent
-                visible: r.iconSource.length > 0
-                source: r.iconSource
-                asynchronous: true
-                implicitSize: 22
+                active: r.iconSource.length > 0
+                sourceComponent: IconImage {
+                    source: r.iconSource
+                    asynchronous: true
+                    implicitSize: 22
+                }
             }
-            Icon {
+            Loader {
                 anchors.centerIn: parent
-                visible: r.iconSource.length === 0 && r.glyph.length > 0
-                name: r.glyph || "dots"; size: 16
-                color: r.current ? Theme.accent : Theme.textDim
+                active: r.iconSource.length === 0 && r.glyph.length > 0
+                sourceComponent: Icon {
+                    name: r.glyph || "dots"
+                    size: 16
+                    color: r.current ? Theme.accent : Theme.textDim
+                }
             }
         }
         ColumnLayout {

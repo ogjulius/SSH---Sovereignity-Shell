@@ -111,7 +111,7 @@ Item {
                 Loader {
                     anchors.centerIn: parent
                     readonly property real sz: Math.min(22, tile.height - 6, tile.width - 6)
-                    active: sz >= 10
+                    active: sz >= 10 && Config.appearance.appIcons
                     sourceComponent: IconImage { implicitSize: parent ? parent.sz : 16; source: Apps.iconFor(tile.modelData.appId); opacity: 0.9 }
                 }
                 // Drag a window tile onto another cell to move the window.
@@ -137,7 +137,7 @@ Item {
             spacing: Theme.s2
             Repeater {
                 model: Compositor.caps.geometry ? [] : cell.wins.slice(0, 12)
-                IconImage { required property var modelData; implicitSize: 20; source: Apps.iconFor(modelData.appId) }
+                Loader { required property var modelData; active: Config.appearance.appIcons; sourceComponent: IconImage { implicitSize: 20; source: Apps.iconFor(modelData.appId) } }
             }
         }
     }

@@ -26,6 +26,8 @@ FocusScope {
     focus: true
 
     property int current: 0
+    // The app index is built lazily; the intent line is its other consumer.
+    Component.onCompleted: Apps.ensureIndex()
     readonly property string query: intent.text.trim().toLowerCase()
     readonly property var here: Atlas.cell(Atlas.cursor.x, Atlas.cursor.y)
     readonly property string hereRef: here && here.ref ? here.ref : Compositor.focusedWorkspaceRef

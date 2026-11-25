@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell.Widgets
 import qs.themes
+import qs.configuration
 import qs.services
 import qs.components
 import qs.compositors
@@ -42,7 +43,7 @@ Pressable {
             spacing: Theme.s2
             Repeater {
                 model: n.wins.slice(0, 6)
-                IconImage { required property var modelData; implicitSize: 14; source: Apps.iconFor(modelData.appId) }
+                Loader { required property var modelData; active: Config.appearance.appIcons; sourceComponent: IconImage { implicitSize: 14; source: Apps.iconFor(modelData.appId) } }
             }
             Label { role: "micro"; dim: true; visible: n.wins.length === 0; text: n.c && n.c.ref ? "empty" : "claim on arrival" }
         }

@@ -16,6 +16,8 @@ FocusScope {
 
     property string category: "all"
     property int current: 0
+    // The app index is built lazily; this surface is one of the two consumers.
+    Component.onCompleted: Apps.ensureIndex()
     readonly property int recentShown: field.text.trim().length === 0 && category === "all" ? Math.min(Config.launcher.recentCount, Apps.recent(Config.launcher.recentCount).length) : 0
     readonly property var results: {
         Apps.index; Apps.usage;

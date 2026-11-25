@@ -10,6 +10,18 @@ fatal).
 First working pre-release. Not yet published.
 
 ### Changed (interface pass)
+- **Signals history recycles.** The history view instantiated every group and
+  card at once; with a full history (80 records from 12 senders) opening it
+  cost **46.4 MiB RSS / 39.9 MiB PSS**. It is now a recycling `ListView`:
+  **31.4 MiB RSS / 24.7 MiB PSS** for the same history — a third less, with
+  the same grouping, the same six cards per sender and the same scrolling.
+- **The application index is lazy.** It used to be built at startup; it is now
+  built when the Launcher or the Lens first asks, and re-built on disk changes
+  only after something has asked. An early ask that finds no entries yet heals
+  itself when they arrive. First surface open: **+70.8 → +65.8 MiB RSS**.
+- `ListRow` instantiates either the themed icon image or the SSH glyph through
+  a `Loader`, never both; the Lens compass and Atlas cells skip their icon
+  nodes entirely while `appearance.appIcons` is off.
 - **Shape is now a choice** (`appearance.shape`, default `round`). Surfaces
   close their corners as rounded islands or as the original chamfered plates;
   `Plate` draws the rounded reading as a plain rectangle, so the default shape

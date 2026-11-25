@@ -37,29 +37,26 @@ FocusScope {
             role: "caption"; faint: true
             text: "SSH is not the notification daemon in this session (another daemon owns org.freedesktop.Notifications, or notifications are disabled)."
         }
-        Flickable {
+        ListView {
+            id: historyList
             Layout.fillWidth: true
-            Layout.fillHeight: true
-            Layout.preferredHeight: list.implicitHeight
-            contentHeight: list.implicitHeight
+            // Recycling: history holds up to notifications.historyLimit (80)
+            // records, so only the groups on screen are ever instantiated.
+            Layout.preferredHeight: Math.min(430, contentHeight)
+            model: Notifs.groups
+            spacing: Theme.s4
             clip: true
+            reuseItems: true
+            cacheBuffer: 0
             boundsBehavior: Flickable.StopAtBounds
-            ColumnLayout {
-                id: list
-                width: parent.width
-                spacing: Theme.s4
+            delegate: ColumnLayout {
+                required property var modelData
+                width: historyList.width
+                spacing: Theme.s2
+                SectionMark { Layout.fillWidth: true; text: modelData.app; index: String(modelData.items.length).padStart(2, "0") }
                 Repeater {
-                    model: Notifs.groups
-                    ColumnLayout {
-                        required property var modelData
-                        Layout.fillWidth: true
-                        spacing: Theme.s2
-                        SectionMark { Layout.fillWidth: true; text: modelData.app; index: String(modelData.items.length).padStart(2, "0") }
-                        Repeater {
-                            model: modelData.items.slice(0, 6)
-                            NotificationCard { required property var modelData; record: modelData; Layout.fillWidth: true }
-                        }
-                    }
+                    model: modelData.items.slice(0, 6)
+                    NotificationCard { required property var modelData; record: modelData; Layout.fillWidth: true }
                 }
             }
         }

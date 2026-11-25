@@ -78,6 +78,11 @@ Mesa drivers (not yet measured).
 - Application icons are off by default (`appearance.appIcons`): Qt's
   icon-theme loader and SVG icon engine are the largest single allocation the
   shell can make, so SSH draws its own glyphs unless you ask for real icons.
+- Long lists recycle. The Launcher results and the Signals history are
+  `ListView`s, so only what is on screen exists: a full 80-record history
+  costs 31.4 MiB RSS instead of 46.4 MiB with every card instantiated.
+- The application index is built on first use, not at startup, and only stays
+  in sync with disk changes after something has asked for it.
 - Only the Meridian is resident; every surface is created on open and destroyed
   after its exit animation, followed by a deferred GC.
 - No polling while idle: compositor, audio, network, Bluetooth, battery and

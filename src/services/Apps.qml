@@ -12,6 +12,11 @@ Singleton {
 
     property var usage: ({})   // entry id -> { n: count, t: last launch ms }
     property var index: []
+    // The index costs a pass over every desktop entry, so it is built on
+    // first use (a launcher or Lens open), not at startup. `wanted` records
+    // that somebody has asked, so later changes on disk keep it in sync.
+    property bool indexed: false
+    property bool wanted: false
 
     readonly property var categories: [
         { key: "all", label: "All" },
@@ -40,8 +45,17 @@ Singleton {
         }
         out.sort((x, y) => x.name.localeCompare(y.name));
         index = out;
+        indexed = true;
     }
-    Connections { target: DesktopEntries.applications; function onValuesChanged() { rebuildTimer.restart(); } }
+    // Call before reading `index`: cheap after the first time. Entries arrive
+    // asynchronously, so an early ask that finds nothing is retried when the
+    // entry set changes.
+    function ensureIndex() {
+        wanted = true;
+        if (!indexed || index.length === 0) rebuild();
+    }
+    // Entries changed on disk: only worth re-indexing once something has asked.
+    Connections { target: DesktopEntries.applications; function onValuesChanged() { if (a.wanted) rebuildTimer.restart(); } }
     Timer { id: rebuildTimer; interval: 200; onTriggered: a.rebuild() }
 
     function frecency(id) {
@@ -90,6 +104,7 @@ Singleton {
     }
     function glyphFor(entry) {
         const cats = entry && entry.categories ? entry.categories : [];
+        if (cats.indexOf("TerminalEmulator") >= 0) return "terminal";
         if (cats.indexOf("Development") >= 0) return "terminal";
         if (cats.indexOf("Graphics") >= 0) return "swatch";
         if (cats.indexOf("Network") >= 0) return "wifi";
@@ -125,5 +140,4 @@ Singleton {
         printErrors: false
         onLoaded: { try { const u = JSON.parse(text()); if (u && typeof u === "object") a.usage = u; } catch (e) {} }
     }
-    Component.onCompleted: rebuild()
 }
