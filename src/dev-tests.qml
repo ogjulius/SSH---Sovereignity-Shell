@@ -30,6 +30,10 @@ ShellRoot {
     function testSchema() {
         const d = Schema.defaults();
         eq("defaults: meridian height", d.meridian.height, 34);
+        eq("defaults: rounded island shape", d.appearance.shape, "round");
+        eq("defaults: top-edge shine on", d.appearance.shine, true);
+        eq("defaults: meridian is an island", d.meridian.style, "island");
+        eq("defaults: ruler ticks belong to the flush strip", d.meridian.showTicks, false);
         eq("defaults: readable default text scale", d.appearance.fontScale, 1.08);
         eq("defaults: app icons disabled for lean rendering", d.appearance.appIcons, false);
         eq("defaults: lock argv", d.commands.lock, ["loginctl", "lock-session"]);
@@ -44,7 +48,7 @@ ShellRoot {
 
         r = Schema.merge({ meridian: { height: 40 } });
         eq("merge valid override", r.value.meridian.height, 40);
-        eq("merge valid override keeps siblings", r.value.meridian.showTicks, true);
+        eq("merge valid override keeps siblings", r.value.meridian.showMinimap, true);
 
         r = Schema.merge({ meridian: { height: 9000 }, appearance: { mode: "neon" } });
         eq("merge out of range -> default", r.value.meridian.height, 34);

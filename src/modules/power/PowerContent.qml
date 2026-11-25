@@ -38,7 +38,7 @@ FocusScope {
     Keys.onReturnPressed: fire(actions[current])
     Keys.onPressed: e => { const n = e.key - Qt.Key_1; if (n >= 0 && n < actions.length) { current = n; fire(actions[n]); e.accepted = true; } }
 
-    Plate { anchors.fill: parent; cut: Theme.cutL; color: Theme.surface(Theme.plate); border: Theme.lineStrong }
+    Plate { anchors.fill: parent; cut: Theme.cutL; color: Theme.surface(Theme.plate); border: Theme.lineStrong; shine: true }
 
     ColumnLayout {
         id: col

@@ -11,6 +11,8 @@ Item {
     id: bar
     property var screen
     property var barWindow
+    // An island draws itself as a floating plate; a flush strip fills the edge.
+    property bool island: Config.meridian.style === "island"
     readonly property bool atTop: Config.meridian.position === "top"
 
     function anchorFor(item) {
@@ -18,13 +20,25 @@ Item {
         return { x: p.x, y: bar.atTop ? bar.height : 0, w: item.width };
     }
 
+    Plate {
+        anchors.fill: parent
+        visible: bar.island
+        cut: Theme.cutM
+        color: Theme.surface(Theme.plate)
+        border: Theme.lineStrong
+        shine: true
+    }
     Rectangle {
         anchors.fill: parent
+        visible: !bar.island
         color: Theme.surface(Theme.plate)
     }
-    Rule { anchors { left: parent.left; right: parent.right; bottom: bar.atTop ? parent.bottom : undefined; top: bar.atTop ? undefined : parent.top } }
+    Rule {
+        visible: !bar.island
+        anchors { left: parent.left; right: parent.right; bottom: bar.atTop ? parent.bottom : undefined; top: bar.atTop ? undefined : parent.top }
+    }
     Ticks {
-        visible: Config.meridian.showTicks
+        visible: Config.meridian.showTicks && !bar.island
         anchors { left: parent.left; right: parent.right; bottom: bar.atTop ? parent.bottom : undefined; top: bar.atTop ? undefined : parent.top; bottomMargin: 1; topMargin: 1 }
         height: 5
         fromBottom: bar.atTop
@@ -32,7 +46,7 @@ Item {
     }
 
     RowLayout {
-        anchors { fill: parent; leftMargin: Theme.s3; rightMargin: Theme.s3; bottomMargin: bar.atTop ? 3 : 0; topMargin: bar.atTop ? 0 : 3 }
+        anchors { fill: parent; leftMargin: bar.island ? Theme.s4 : Theme.s3; rightMargin: bar.island ? Theme.s4 : Theme.s3; bottomMargin: bar.island || !bar.atTop ? 0 : 3; topMargin: bar.island || bar.atTop ? 0 : 3 }
         spacing: Theme.s4
 
         // ── Position ──────────────────────────────────────────────────

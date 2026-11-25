@@ -97,7 +97,7 @@ FocusScope {
         height: Math.max(220, Math.min(440, 104 + Math.max(1, lens.count) * 44))
         Behavior on height { enabled: Theme.animate; NumberAnimation { duration: Theme.durStd; easing.type: Easing.BezierSpline; easing.bezierCurve: Theme.curveEnter } }
 
-        Plate { anchors.fill: parent; cut: Theme.cutL; color: Theme.surface(Theme.plate); border: Theme.lineStrong }
+        Plate { anchors.fill: parent; cut: Theme.cutL; color: Theme.surface(Theme.plate); border: Theme.lineStrong; shine: true }
         Rectangle { // meridian through the centre plate
             anchors { left: parent.left; right: parent.right; top: parent.top; topMargin: 76 }
             height: 1; color: Theme.line

@@ -127,7 +127,10 @@ ShellRoot {
             MeridianContent {
                 id: bar
                 visible: !!root.specs[root.current] && root.specs[root.current].place !== "fill"
-                anchors { left: parent.left; right: parent.right; top: parent.top }
+                // Mirror what Meridian.qml's window does for an island: inset
+                // from the screen edges by the shape gap.
+                readonly property int inset: Config.meridian.style === "island" ? Math.max(4, Theme.gap) : 0
+                anchors { left: parent.left; right: parent.right; top: parent.top; leftMargin: inset; rightMargin: inset; topMargin: inset }
                 height: Config.meridian.height
             }
             Rectangle {

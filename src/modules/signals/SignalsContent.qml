@@ -12,7 +12,7 @@ FocusScope {
     focus: true
     Component.onCompleted: Notifs.markRead()
 
-    Plate { anchors.fill: parent; cut: Theme.cutL; color: Theme.surface(Theme.plate); border: Theme.lineStrong }
+    Plate { anchors.fill: parent; cut: Theme.cutL; color: Theme.surface(Theme.plate); border: Theme.lineStrong; shine: true }
 
     ColumnLayout {
         id: col

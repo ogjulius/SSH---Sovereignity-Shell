@@ -21,7 +21,7 @@ in Instruments, or the Lens command "Settings"). Settings writes
 
 ```json
 {
-  "appearance": { "accent": "verdigris", "chamfer": 1.25 },
+  "appearance": { "accent": "verdigris", "shape": "cut", "chamfer": 1.25 },
   "meridian": { "position": "bottom", "showVolumePercent": true },
   "atlas": { "previews": false },
   "weather": { "latitude": 50.06, "longitude": 19.94, "locationName": "Kraków" },
@@ -38,17 +38,21 @@ in Instruments, or the Lens command "Settings"). Settings writes
 | `appIcons` | bool | **false** | opt-in desktop icons; off keeps Launcher, Lens and Atlas from loading icon-theme assets |
 | `accent` | `argent` `brass` `ember` `verdigris` `cobalt` `oxblood` `custom` | `argent` | |
 | `customAccent` | `#rrggbb` | `#c9bfa9` | used when accent is `custom` |
-| `opacity` | 0.5–1 | 0.94 | plate translucency (pair with compositor blur) |
+| `shape` | `round` `cut` | `round` | rounded islands, or the chamfered survey silhouette |
+| `shine` | bool | true | soft light along the top edge of rounded surfaces |
+| `opacity` | 0.5–1 | 0.9 | plate translucency (pair with compositor blur) |
 | `animationScale` | 0–2 | 1 | 0 disables animation |
 | `fontUi` / `fontDisplay` / `fontMono` | text | Inter / Inter Display / JetBrains Mono | |
 | `fontScale` | 0.8–1.4 | 1.08 | slightly larger default for at-a-glance legibility |
-| `chamfer` | 0–2 | 1 | cut-corner size; 0 = square |
+| `chamfer` | 0–2 | 1 | scales the radius or the cut; 0 = square |
 | `autoLightFrom` / `autoDarkFrom` | 0–23 | 7 / 19 | for `mode: auto` |
 | **meridian** | | | |
 | `position` | `top` `bottom` | `top` | |
+| `style` | `island` `flush` | `island` | island floats inset from the edges; flush fills the screen edge |
 | `height` | 26–52 | 34 | |
 | `monitors` | list of output names | `[]` (all) | |
-| `showTicks` `showMinimap` `showRow` `showTitle` `showTray` | bool | true | |
+| `showMinimap` `showRow` `showTitle` `showTray` | bool | true | |
+| `showTicks` | bool | false | the ruler-tick edge; only drawn by the flush style |
 | `showBatteryPercent` / `showVolumePercent` | bool | true / false | |
 | **lens** | | | |
 | `enabled` | bool | true | |

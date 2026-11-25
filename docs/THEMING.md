@@ -5,7 +5,7 @@ A theme is the `appearance` section of the config, saved as its own file:
 ```json
 {
   "name": "Ember Night",
-  "appearance": { "mode": "dark", "accent": "ember", "opacity": 0.9, "chamfer": 1.25 }
+  "appearance": { "mode": "dark", "accent": "ember", "opacity": 0.9, "shape": "cut", "chamfer": 1.25 }
 }
 ```
 
@@ -19,7 +19,7 @@ A theme is the `appearance` section of the config, saved as its own file:
 
 ## What a theme can change
 
-Ground (`mode`), accent (named or custom hex), plate opacity, chamfer size,
+Ground (`mode`), accent (named or custom hex), plate opacity, shape and corner size,
 motion scale, fonts and text scale, and the auto light/dark hours. Grounds
 themselves are fixed and contrast-tested; this keeps every theme legible.
 

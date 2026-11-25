@@ -48,12 +48,23 @@ key, the fill of a gauge. Never large fills; never gradients for decoration.
 
 A 4-point rhythm: `s1`=2, `s2`=4, `s3`=8, `s4`=12, `s5`=16, `s6`=24, `s7`=32, `s8`=48.
 
-## Geometry: chamfers, not radii
+## Geometry: two silhouettes, one budget
 
-The signature silhouette is a **plate with the top-left and bottom-right corners
-cut**. Cuts come in three sizes (`cutS` 4, `cutM` 8, `cutL` 14) scaled by
-`appearance.chamfer` (0 gives square plates). Hairlines are 1px. Nothing in SSH
-is rounded.
+`appearance.shape` chooses how every surface closes its corners:
+
+| Shape | Reading | Sizes (`cutS` / `cutM` / `cutL`) |
+|---|---|---|
+| `round` (default) | floating islands, softened edges | 9 / 15 / 23 |
+| `cut` | the survey silhouette: top-left and bottom-right corners cut | 4 / 8 / 14 |
+
+Both are scaled by `appearance.chamfer` (0 gives square plates), and both are
+drawn by the same `Plate`: call sites pass `Theme.cutS/cutM/cutL` and never
+branch. Round plates are plain rectangles — no `QtQuick.Shapes` node, so the
+default shape is also the cheaper one to render.
+
+Rounded surfaces may carry a **shine**: a short white gradient along the top
+edge (`appearance.shine`), and the Meridian can float as an **island** inset
+from the screen edges (`meridian.style`). Hairlines stay 1px in both shapes.
 
 ## Depth
 
@@ -84,7 +95,7 @@ recolour with the theme. Third-party icons (apps, tray) are shown as-is but smal
 
 | Component | Role |
 |---|---|
-| `Plate` | chamfered surface; the base of every panel, key and card |
+| `Plate` | rounded island or chamfered plate; the base of every panel, key and card |
 | `Ticks` / `Rule` | ruler ticks and hairlines |
 | `Label` | typographic roles |
 | `Icon`, `IconButton` | glyphs |

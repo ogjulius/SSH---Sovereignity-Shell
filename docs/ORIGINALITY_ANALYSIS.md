@@ -20,10 +20,10 @@ departs from the existing Quickshell ecosystem.
 
 | Pattern | Typical form | SSH's position |
 |---|---|---|
-| Bar | Floating, fully rounded pill or islands | Flush strip with a ruler-tick edge and a coordinate readout |
+| Bar | Floating, fully rounded pill or islands | Island by default, but carrying a coordinate readout and row stops; a flush ruler-tick strip stays available (`meridian.style`) |
 | Workspaces | Numbered dots / pills, 1–10 | Cells on an unbounded 2D map in named collections; numbers survive as row 1 |
 | Dashboard | Grid of rounded cards | Compass layout around *where you are* (Lens); ledger-style Almanac |
-| Shape language | Large uniform corner radius, Material You tones | Chamfered (cut) corners, hairlines, warm metal accents |
+| Shape language | Large uniform corner radius, Material You tones | Moderate radii or chamfers (`appearance.shape`), hairlines, warm metal accents, no wallpaper-derived tones |
 | Launcher | Separate fuzzy list | Also present, but the Lens intent line unifies apps, windows, places and commands |
 | Colour | Wallpaper-extracted palettes, saturated accents | Fixed, contrast-tested grounds (Obsidian/Vellum) with desaturated accents |
 
@@ -71,8 +71,11 @@ Scored 1–5 against the founding criteria (higher is better):
 
 ## Originality checks applied during implementation
 
-- No floating rounded bar; no uniform radius anywhere (`components/Plate.qml`
-  cuts corners, it never rounds them).
+- Shape is a choice, not a fashion: `appearance.shape` switches every surface
+  between rounded islands (default, since v0.1.0-alpha) and the chamfered
+  survey silhouette. The rounded reading brings SSH closer to the ecosystem
+  norm on purpose; what stays SSH's own is the coordinate readout, the map row,
+  the compass dashboard and the hand-tuned grounds.
 - No icon font: SSH ships its own 24-unit line glyph set (`themes/Icons.js`).
 - No wallpaper-derived Material palette: grounds and accents are hand-tuned and
   contrast-tested in CI (`dev-tests.qml`, palette suite).

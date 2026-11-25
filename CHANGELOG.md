@@ -10,6 +10,15 @@ fatal).
 First working pre-release. Not yet published.
 
 ### Changed (interface pass)
+- **Shape is now a choice** (`appearance.shape`, default `round`). Surfaces
+  close their corners as rounded islands or as the original chamfered plates;
+  `Plate` draws the rounded reading as a plain rectangle, so the default shape
+  needs no `QtQuick.Shapes` node. Rounded surfaces can carry a soft top-edge
+  light (`appearance.shine`).
+- **The Meridian floats** (`meridian.style`, default `island`): inset from the
+  screen edges, rounded, with the ruler-tick edge reserved for `flush`
+  (`meridian.showTicks` therefore defaults to `false`).
+- Default plate opacity 0.94 → 0.90, so a compositor blur rule reads as glass.
 - **Application icons are opt-in** (`appearance.appIcons`, default `false`).
   Qt's icon-theme loader and SVG engine are the single largest allocation in
   the shell; with icons off the Launcher, Lens and Atlas draw SSH's own

@@ -50,6 +50,7 @@ FocusScope {
         cut: Theme.cutL
         color: Theme.surface(Theme.plate)
         border: Theme.lineStrong
+        shine: true
     }
 
     ColumnLayout {

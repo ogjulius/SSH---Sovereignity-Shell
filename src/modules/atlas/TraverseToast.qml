@@ -27,7 +27,7 @@ PanelWindow {
     Behavior on slide { enabled: Theme.animate; NumberAnimation { duration: Theme.durSpatial; easing.type: Easing.BezierSpline; easing.bezierCurve: Theme.curveSpatial } }
     Connections { target: Atlas; function onTraversed() { tt.slide = 1; tt.slide = 0; } }
 
-    Plate { anchors.fill: parent; cut: Theme.cutM; color: Theme.surface(Theme.plate); border: Theme.lineStrong }
+    Plate { anchors.fill: parent; cut: Theme.cutM; color: Theme.surface(Theme.plate); border: Theme.lineStrong; shine: true }
     RowLayout {
         anchors { fill: parent; margins: Theme.s4 }
         spacing: Theme.s4

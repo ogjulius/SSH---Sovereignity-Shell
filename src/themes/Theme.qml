@@ -82,12 +82,18 @@ Singleton {
     readonly property int s7: 32
     readonly property int s8: 48
 
-    // ── Geometry: chamfers, not radii ──────────────────────────────────
+    // ── Geometry: round islands or chamfered plates ────────────────────
+    // `shape` decides how a Plate closes its corners; the cut* sizes are the
+    // geometry budget for either reading, so call sites never branch.
+    readonly property bool rounded: Config.appearance.shape === "round"
+    readonly property bool shine: Config.appearance.shine && rounded
     readonly property real chamferScale: Config.appearance.chamfer
-    readonly property real cutS: 4 * chamferScale
-    readonly property real cutM: 8 * chamferScale
-    readonly property real cutL: 14 * chamferScale
+    readonly property real cutS: (rounded ? 9 : 4) * chamferScale
+    readonly property real cutM: (rounded ? 15 : 8) * chamferScale
+    readonly property real cutL: (rounded ? 23 : 14) * chamferScale
     readonly property real hair: 1
+    // Gap between an island surface and the screen edge.
+    readonly property int gap: rounded ? 8 : 0
 
     // ── Motion ─────────────────────────────────────────────────────────
     readonly property real motion: Config.appearance.animationScale

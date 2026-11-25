@@ -21,7 +21,7 @@ FocusScope {
     Keys.onLeftPressed: monthOffset--
     Keys.onRightPressed: monthOffset++
 
-    Plate { anchors.fill: parent; cut: Theme.cutL; color: Theme.surface(Theme.plate); border: Theme.lineStrong }
+    Plate { anchors.fill: parent; cut: Theme.cutL; color: Theme.surface(Theme.plate); border: Theme.lineStrong; shine: true }
 
     GridLayout {
         id: grid

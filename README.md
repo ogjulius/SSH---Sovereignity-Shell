@@ -65,14 +65,15 @@ windows, named places and commands at once.
 <td valign="top">
 
 ### Meridian
-A flush instrument strip with a ruler-tick edge, your coordinate, a minimap of
-the neighbourhood and the stops on your current row. No floating pill.
+A floating island with your coordinate, a minimap of the neighbourhood and the
+stops on your current row — or a flush strip with the ruler-tick edge, if you
+prefer it (`meridian.style`).
 
 </td>
 <td valign="top">
 
 ### One design language
-Chamfered plates instead of rounded rectangles, hairlines, warm-silver accents
+Rounded islands or chamfered plates (your choice), hairlines, warm-silver accents
 on obsidian (dark) or vellum (light), an original glyph set, figures in
 monospace. Text contrast is unit-tested.
 
@@ -200,7 +201,7 @@ Details: [docs/COMPOSITOR_SUPPORT.md](docs/COMPOSITOR_SUPPORT.md).
 ## ◇ Configure
 
 Everything is in **Settings** (`ssh-shell settings open`): accents, grounds,
-chamfer size, motion, fonts, bar layout, Atlas behaviour, notifications,
+shape and corner size, motion, fonts, bar layout, Atlas behaviour, notifications,
 weather, commands and keys. Settings writes only your own choices to
 `~/.config/ssh-shell/config.json`, validated option by option.
 

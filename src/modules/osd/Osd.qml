@@ -33,6 +33,7 @@ PanelWindow {
         cut: Theme.cutM
         color: Theme.surface(Theme.plate)
         border: Theme.lineStrong
+        shine: true
     }
     RowLayout {
         anchors { fill: parent; leftMargin: Theme.s5; rightMargin: Theme.s5 }
